@@ -12,7 +12,9 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800" rel="stylesheet" />
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @endif
 </head>
 <body class="bg-warm-50 text-gray-800 antialiased" x-data="{ mobileMenu: false }">
 
@@ -47,9 +49,24 @@
 
                 {{-- CTA + Mobile Toggle --}}
                 <div class="flex items-center gap-3">
-                    <a href="#services" class="hidden sm:inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-brand-500 to-accent-500 text-white text-sm font-semibold rounded-full shadow-md hover:shadow-lg transition-all hover:scale-105">
-                        Book Now
-                    </a>
+                    @auth
+                        <a href="{{ route('dashboard') }}" class="hidden sm:inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-brand-500 to-accent-500 text-white text-sm font-semibold rounded-full shadow-md hover:shadow-lg transition-all hover:scale-105">
+                            Dashboard
+                        </a>
+                        <form method="POST" action="{{ route('logout') }}" class="hidden sm:block">
+                            @csrf
+                            <button type="submit" class="rounded-full border border-brand-200 px-4 py-2 text-sm font-semibold text-brand-700 transition hover:bg-brand-50">
+                                Logout
+                            </button>
+                        </form>
+                    @else
+                        <a href="{{ route('login') }}" class="hidden sm:inline-flex items-center px-4 py-2.5 text-sm font-semibold text-brand-700 transition hover:text-brand-900">
+                            Login
+                        </a>
+                        <a href="{{ route('register') }}" class="hidden sm:inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-brand-500 to-accent-500 text-white text-sm font-semibold rounded-full shadow-md hover:shadow-lg transition-all hover:scale-105">
+                            Register
+                        </a>
+                    @endauth
                     <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2 rounded-lg hover:bg-brand-100 transition-colors" aria-label="Toggle menu">
                         <svg x-show="!mobileMenu" class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                         <svg x-show="mobileMenu" x-cloak class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -73,9 +90,24 @@
                 <a @click="mobileMenu = false" href="#features" class="px-4 py-3 rounded-xl text-gray-700 font-medium hover:bg-brand-100 transition-colors">Features</a>
                 <a @click="mobileMenu = false" href="#faq" class="px-4 py-3 rounded-xl text-gray-700 font-medium hover:bg-brand-100 transition-colors">FAQ</a>
                 <a @click="mobileMenu = false" href="#contact" class="px-4 py-3 rounded-xl text-gray-700 font-medium hover:bg-brand-100 transition-colors">Contact</a>
-                <a href="#services" @click="mobileMenu = false" class="mt-2 flex items-center justify-center px-5 py-3 bg-gradient-to-r from-brand-500 to-accent-500 text-white font-semibold rounded-full shadow-md">
-                    Book Now
-                </a>
+                @auth
+                    <a href="{{ route('dashboard') }}" @click="mobileMenu = false" class="mt-2 flex items-center justify-center px-5 py-3 bg-gradient-to-r from-brand-500 to-accent-500 text-white font-semibold rounded-full shadow-md">
+                        Dashboard
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}" class="mt-2">
+                        @csrf
+                        <button type="submit" class="flex w-full items-center justify-center rounded-full border border-brand-200 px-5 py-3 font-semibold text-brand-700">
+                            Logout
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" @click="mobileMenu = false" class="mt-2 flex items-center justify-center px-5 py-3 border border-brand-200 text-brand-700 font-semibold rounded-full">
+                        Login
+                    </a>
+                    <a href="{{ route('register') }}" @click="mobileMenu = false" class="mt-2 flex items-center justify-center px-5 py-3 bg-gradient-to-r from-brand-500 to-accent-500 text-white font-semibold rounded-full shadow-md">
+                        Register
+                    </a>
+                @endauth
             </div>
         </div>
     </nav>
