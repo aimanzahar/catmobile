@@ -31,6 +31,9 @@ html {
     scroll-behavior: smooth;
 }
 
+/* Alpine cloak — hide until initialized */
+[x-cloak] { display: none !important; }
+
 /* Floating paw animation */
 @keyframes float-paw {
     0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.15; }
@@ -109,3 +112,166 @@ html {
 /* Hide scrollbar for carousel */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Bottom Tab Bar ── */
+.bottom-tab-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 0.5rem 0;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+.tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.125rem;
+    padding: 0.375rem 1rem;
+    border-radius: 1rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+    color: #9CA3AF;
+    transition: color 0.2s, background 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.tab-item.active {
+    color: var(--color-brand-600);
+}
+
+.tab-item svg {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+/* ── Segmented Control ── */
+.segmented-control {
+    display: flex;
+    background: #F3F4F6;
+    border-radius: 0.75rem;
+    padding: 0.25rem;
+    gap: 0.125rem;
+}
+
+.segmented-control button {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #6B7280;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.segmented-control button.active {
+    background: white;
+    color: var(--color-brand-700);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Mobile touch inputs ── */
+.input-mobile {
+    width: 100%;
+    border-radius: 1rem;
+    border: 1.5px solid #E5E7EB;
+    background: white;
+    padding: 0.875rem 1rem;
+    font-size: 0.9375rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-mobile:focus {
+    border-color: var(--color-brand-400);
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+}
+
+/* ── Mobile CTA Button ── */
+.btn-primary-mobile {
+    width: 100%;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, var(--color-brand-500), var(--color-accent-500));
+    padding: 0.9375rem 1rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: white;
+    box-shadow: 0 4px 14px rgba(249, 115, 22, 0.25);
+    transition: transform 0.15s, box-shadow 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn-primary-mobile:active {
+    transform: scale(0.98);
+}
+
+/* ── Content padding for bottom tab bar ── */
+.has-tab-bar {
+    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* ── Compact card with left accent bar ── */
+.card-accent-left {
+    border-left: 3px solid var(--color-brand-400);
+    border-radius: 1rem;
+    background: white;
+    padding: 1rem;
+}
+
+/* ── Avatar circle ── */
+.avatar-circle {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, var(--color-brand-500), var(--color-accent-500));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.125rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+/* ── Horizontal scroll stat pills ── */
+.stat-scroll {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.stat-scroll::-webkit-scrollbar { display: none; }
+
+.stat-pill {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 1rem;
+    padding: 0.75rem 1rem;
+    min-width: 6.5rem;
+}
+
+/* ── Auth screen layout ── */
+.auth-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: calc(100vh - 4rem);
+    min-height: calc(100dvh - 4rem);
+    padding: 2rem 1.5rem;
+}
