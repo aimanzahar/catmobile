@@ -100,13 +100,13 @@ html {
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Mobile safe area */
+/* Mobile safe area — solid fallback for Android WebView where env() returns 0 */
 .safe-top {
-    padding-top: env(safe-area-inset-top, 0px);
+    padding-top: max(1.75rem, env(safe-area-inset-top, 1.75rem));
 }
 
 .safe-bottom {
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
 }
 
 /* Hide scrollbar for carousel */

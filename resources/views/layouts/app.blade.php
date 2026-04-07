@@ -15,8 +15,8 @@
     <div class="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top_right,_rgba(251,113,133,0.08),_transparent_40%),linear-gradient(180deg,_rgba(255,248,240,1)_0%,_rgba(255,251,245,1)_100%)]">
 
         {{-- ── Minimal top bar ── --}}
-        <header class="safe-top sticky top-0 z-40 border-b border-black/5 bg-white/80 backdrop-blur-xl">
-            <div class="flex items-center justify-between px-5 py-3">
+        <header class="safe-top sticky top-0 z-40 border-b border-black/5 bg-white/90 backdrop-blur-xl">
+            <div class="flex items-center justify-between px-5 pb-3">
                 <a href="{{ route('landing') }}" class="flex items-center gap-2 text-base font-extrabold text-brand-700">
                     <span class="text-xl">🐱</span>
                     <span>CatGroom</span>
