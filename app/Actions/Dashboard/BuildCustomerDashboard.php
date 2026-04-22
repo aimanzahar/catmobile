@@ -3,41 +3,60 @@
 namespace App\Actions\Dashboard;
 
 use App\Models\Booking;
+use App\Models\Pet;
 use App\Models\User;
+use App\Services\PocketBase\PocketBaseClient;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use RuntimeException;
 
 class BuildCustomerDashboard
 {
+    public function __construct(private readonly PocketBaseClient $client) {}
+
     public function handle(User $user): array
     {
-        $bookings = $user->bookings()
-            ->with([
-                'pet:id,name',
-                'service:id,name,slug,price,duration_minutes',
-                'timeSlot:id,date,start_time,end_time',
-                'taxiRequest:id,booking_id,pickup_address,status,scheduled_at',
-            ])
-            ->get();
+        if ($user->pocketbase_token === null) {
+            throw new RuntimeException('Authenticated user is missing a PocketBase token.');
+        }
 
-        $now = now();
+        $token = $user->pocketbase_token;
 
-        $upcomingBookings = $bookings
+        $petsResponse = $this->client->listRecords('cg_pets', $token, [
+            'filter' => "user='{$user->id}'",
+            'sort' => 'name',
+            'perPage' => 200,
+        ]);
+        $pets = collect($petsResponse['items'] ?? [])
+            ->map(fn (array $record) => Pet::fromRecord($record))
+            ->values();
+
+        $bookingsResponse = $this->client->listRecords('cg_bookings', $token, [
+            'filter' => "user='{$user->id}'",
+            'expand' => 'pet,service,time_slot,cg_taxi_requests_via_booking',
+            'perPage' => 200,
+        ]);
+        $bookings = collect($bookingsResponse['items'] ?? [])
+            ->map(fn (array $record) => Booking::fromRecord($record));
+
+        $now = Carbon::now();
+
+        $upcoming = $bookings
             ->filter(fn (Booking $booking) => $this->isUpcoming($booking, $now))
             ->sortBy(fn (Booking $booking) => $this->slotStartsAt($booking)?->timestamp ?? PHP_INT_MAX)
             ->values();
 
-        $bookingHistory = $bookings
+        $history = $bookings
             ->reject(fn (Booking $booking) => $this->isUpcoming($booking, $now))
             ->sortByDesc(fn (Booking $booking) => $this->slotStartsAt($booking)?->timestamp ?? 0)
             ->values();
 
         return [
-            'user' => $user->loadMissing('pets'),
-            'pets' => $user->pets()->orderBy('name')->get(),
-            'upcoming_bookings' => $upcomingBookings,
-            'booking_history' => $bookingHistory,
+            'user' => $user,
+            'pets' => $pets,
+            'upcoming_bookings' => $upcoming,
+            'booking_history' => $history,
         ];
     }
 
@@ -52,14 +71,15 @@ class BuildCustomerDashboard
 
     private function slotStartsAt(Booking $booking): ?Carbon
     {
-        if (! $booking->relationLoaded('timeSlot') || $booking->timeSlot === null) {
+        $timeSlot = $booking->timeSlot;
+        if ($timeSlot === null || $timeSlot->date === null) {
             return null;
         }
 
         return Carbon::parse(sprintf(
             '%s %s',
-            $booking->timeSlot->date->toDateString(),
-            $booking->timeSlot->start_time,
+            $timeSlot->date->toDateString(),
+            $timeSlot->start_time ?? '00:00',
         ));
     }
 }

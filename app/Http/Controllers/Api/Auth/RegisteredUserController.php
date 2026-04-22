@@ -12,12 +12,11 @@ class RegisteredUserController extends Controller
 {
     public function store(RegisterRequest $request, RegisterUser $registerUser): JsonResponse
     {
-        $user = $registerUser->handle($request->validated());
-        $token = $user->createToken('mobile')->plainTextToken;
+        $result = $registerUser->handle($request->validated());
 
         return response()->json([
-            'token' => $token,
-            'user' => new UserResource($user),
+            'token' => $result['token'],
+            'user' => new UserResource($result['user']),
         ], 201);
     }
 }

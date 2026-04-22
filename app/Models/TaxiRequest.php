@@ -2,30 +2,26 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Carbon\Carbon;
 
-class TaxiRequest extends Model
+class TaxiRequest
 {
-    use HasFactory;
+    public function __construct(
+        public readonly string $id,
+        public readonly string $pickup_address,
+        public readonly string $status = 'pending',
+        public readonly ?Carbon $scheduled_at = null,
+    ) {}
 
-    protected $fillable = [
-        'booking_id',
-        'pickup_address',
-        'status',
-        'scheduled_at',
-    ];
-
-    protected function casts(): array
+    public static function fromRecord(array $record): self
     {
-        return [
-            'scheduled_at' => 'datetime',
-        ];
-    }
+        $raw = $record['scheduled_at'] ?? null;
 
-    public function booking(): BelongsTo
-    {
-        return $this->belongsTo(Booking::class);
+        return new self(
+            id: (string) ($record['id'] ?? ''),
+            pickup_address: (string) ($record['pickup_address'] ?? ''),
+            status: (string) ($record['status'] ?? 'pending'),
+            scheduled_at: $raw ? Carbon::parse($raw) : null,
+        );
     }
 }

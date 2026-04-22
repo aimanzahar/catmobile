@@ -9,15 +9,29 @@ use App\Http\Requests\Pet\StorePetRequest;
 use App\Http\Requests\Pet\UpdatePetRequest;
 use App\Http\Resources\PetResource;
 use App\Models\Pet;
+use App\Services\PocketBase\Exceptions\PocketBaseNotFoundException;
+use App\Services\PocketBase\PocketBaseClient;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class PetController extends Controller
 {
+    public function __construct(private readonly PocketBaseClient $client) {}
+
     public function index(Request $request): AnonymousResourceCollection
     {
-        return PetResource::collection($request->user()->pets()->orderBy('name')->get());
+        $user = $request->user();
+        $response = $this->client->listRecords('cg_pets', $user->pocketbase_token, [
+            'filter' => "user='{$user->id}'",
+            'sort' => 'name',
+            'perPage' => 200,
+        ]);
+
+        $pets = collect($response['items'] ?? [])->map(fn (array $record) => Pet::fromRecord($record));
+
+        return PetResource::collection($pets);
     }
 
     public function store(StorePetRequest $request, CreatePet $createPet): JsonResponse
@@ -27,22 +41,37 @@ class PetController extends Controller
         return response()->json(new PetResource($pet), 201);
     }
 
-    public function update(UpdatePetRequest $request, Pet $pet, UpdatePet $updatePet): PetResource
+    public function update(UpdatePetRequest $request, string $pet, UpdatePet $updatePet): PetResource
     {
-        return new PetResource($updatePet->handle($this->resolvePet($request, $pet), $request->validated()));
+        $owned = $this->loadOwnedPet($request, $pet);
+
+        return new PetResource($updatePet->handle($request->user(), $owned, $request->validated()));
     }
 
-    public function destroy(Request $request, Pet $pet): JsonResponse
+    public function destroy(Request $request, string $pet): JsonResponse
     {
-        $this->resolvePet($request, $pet)->delete();
+        $owned = $this->loadOwnedPet($request, $pet);
+        $this->client->deleteRecord('cg_pets', $owned->id, $request->user()->pocketbase_token);
 
         return response()->json([
             'message' => 'Pet removed successfully.',
         ]);
     }
 
-    private function resolvePet(Request $request, Pet $pet): Pet
+    private function loadOwnedPet(Request $request, string $petId): Pet
     {
-        return $request->user()->pets()->whereKey($pet->id)->firstOrFail();
+        $user = $request->user();
+
+        try {
+            $record = $this->client->getRecord('cg_pets', $petId, $user->pocketbase_token);
+        } catch (PocketBaseNotFoundException) {
+            throw new NotFoundHttpException();
+        }
+
+        if (($record['user'] ?? null) !== $user->id) {
+            throw new NotFoundHttpException();
+        }
+
+        return Pet::fromRecord($record);
     }
 }

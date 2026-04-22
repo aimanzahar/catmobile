@@ -8,12 +8,10 @@ use App\Http\Controllers\Api\PetController;
 use App\Http\Controllers\Api\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('guest')->group(function () {
-    Route::post('/register', [RegisteredUserController::class, 'store']);
-    Route::post('/login', [SessionController::class, 'store']);
-});
+Route::post('/register', [RegisteredUserController::class, 'store']);
+Route::post('/login', [SessionController::class, 'store']);
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:pocketbase')->group(function () {
     Route::post('/logout', [SessionController::class, 'destroy']);
     Route::get('/me', MeController::class);
     Route::get('/dashboard', [DashboardController::class, 'show']);

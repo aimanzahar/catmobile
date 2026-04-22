@@ -15,7 +15,7 @@ class SessionController extends Controller
     public function store(LoginRequest $request, AuthenticateUser $authenticateUser): JsonResponse
     {
         try {
-            $user = $authenticateUser->handle($request->validated());
+            $result = $authenticateUser->handle($request->validated());
         } catch (ValidationException $exception) {
             return response()->json([
                 'message' => 'The provided credentials are incorrect.',
@@ -23,18 +23,15 @@ class SessionController extends Controller
             ], 401);
         }
 
-        $token = $user->createToken('mobile')->plainTextToken;
-
         return response()->json([
-            'token' => $token,
-            'user' => new UserResource($user),
+            'token' => $result['token'],
+            'user' => new UserResource($result['user']),
         ]);
     }
 
     public function destroy(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()?->delete();
-
+        // PocketBase tokens are stateless JWTs; logout is client-side (drop the token).
         return response()->json([
             'message' => 'Logged out successfully.',
         ]);

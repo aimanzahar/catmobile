@@ -2,32 +2,30 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Carbon\Carbon;
 
-class TimeSlot extends Model
+class TimeSlot
 {
-    use HasFactory;
+    public function __construct(
+        public readonly string $id,
+        public readonly ?Carbon $date = null,
+        public readonly ?string $start_time = null,
+        public readonly ?string $end_time = null,
+        public readonly bool $is_available = true,
+        public readonly int $max_bookings = 0,
+    ) {}
 
-    protected $fillable = [
-        'date',
-        'start_time',
-        'end_time',
-        'is_available',
-        'max_bookings',
-    ];
-
-    protected function casts(): array
+    public static function fromRecord(array $record): self
     {
-        return [
-            'date' => 'date',
-            'is_available' => 'boolean',
-        ];
-    }
+        $rawDate = $record['date'] ?? null;
 
-    public function bookings(): HasMany
-    {
-        return $this->hasMany(Booking::class);
+        return new self(
+            id: (string) ($record['id'] ?? ''),
+            date: $rawDate ? Carbon::parse($rawDate) : null,
+            start_time: $record['start_time'] ?? null,
+            end_time: $record['end_time'] ?? null,
+            is_available: (bool) ($record['is_available'] ?? true),
+            max_bookings: (int) ($record['max_bookings'] ?? 0),
+        );
     }
 }

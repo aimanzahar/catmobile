@@ -2,24 +2,39 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use App\Auth\PocketBaseGuard;
+use App\Services\PocketBase\PocketBaseClient;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
-        //
+        $this->app->singleton(PocketBaseClient::class);
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         JsonResource::withoutWrapping();
+
+        Auth::extend('pocketbase-session', function ($app) {
+            return new PocketBaseGuard(
+                $app->make(PocketBaseClient::class),
+                $app->make('request'),
+                $app->make('session.store'),
+                'session',
+            );
+        });
+
+        Auth::extend('pocketbase-token', function ($app) {
+            return new PocketBaseGuard(
+                $app->make(PocketBaseClient::class),
+                $app->make('request'),
+                null,
+                'token',
+            );
+        });
     }
 }

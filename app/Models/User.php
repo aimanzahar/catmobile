@@ -2,43 +2,73 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Contracts\Auth\Authenticatable;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User implements Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    public ?string $pocketbase_token = null;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    public function __construct(
+        public readonly string $id,
+        public readonly string $name,
+        public readonly string $email,
+        public readonly bool $verified = false,
+        public readonly ?string $created = null,
+        public readonly ?string $updated = null,
+    ) {}
+
+    public static function fromRecord(array $record, ?string $token = null): self
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        $user = new self(
+            id: (string) ($record['id'] ?? ''),
+            name: (string) ($record['name'] ?? ''),
+            email: (string) ($record['email'] ?? ''),
+            verified: (bool) ($record['verified'] ?? false),
+            created: isset($record['created']) ? (string) $record['created'] : null,
+            updated: isset($record['updated']) ? (string) $record['updated'] : null,
+        );
+        $user->pocketbase_token = $token;
+
+        return $user;
     }
 
-    public function bookings(): HasMany
+    public function getAuthIdentifierName(): string
     {
-        return $this->hasMany(Booking::class);
+        return 'id';
     }
 
-    public function pets(): HasMany
+    public function getAuthIdentifier(): string
     {
-        return $this->hasMany(Pet::class);
+        return $this->id;
+    }
+
+    public function getAuthPasswordName(): string
+    {
+        return 'password';
+    }
+
+    public function getAuthPassword(): string
+    {
+        return '';
+    }
+
+    public function getAuthPasswordHash(): string
+    {
+        return '';
+    }
+
+    public function getRememberToken(): ?string
+    {
+        return null;
+    }
+
+    public function setRememberToken($value): void
+    {
+        // no-op; remember tokens handled by PocketBase sessions
+    }
+
+    public function getRememberTokenName(): ?string
+    {
+        return null;
     }
 }

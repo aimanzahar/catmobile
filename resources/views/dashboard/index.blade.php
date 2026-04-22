@@ -148,7 +148,7 @@
                     @foreach ($pets as $pet)
                         <div class="rounded-2xl bg-white border border-gray-100 overflow-hidden">
                             {{-- Pet header (tap to expand) --}}
-                            <button @click="editingPet === {{ $pet->id }} ? editingPet = null : editingPet = {{ $pet->id }}"
+                            <button @click="editingPet === '{{ $pet->id }}' ? editingPet = null : editingPet = '{{ $pet->id }}'"
                                     class="flex w-full items-center justify-between gap-3 p-4 text-left">
                                 <div class="flex items-center gap-3 min-w-0">
                                     <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-100 text-lg flex-shrink-0">🐱</div>
@@ -159,14 +159,14 @@
                                 </div>
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
                                      class="h-5 w-5 flex-shrink-0 text-gray-400 transition-transform duration-200"
-                                     :class="editingPet === {{ $pet->id }} && 'rotate-180'">
+                                     :class="editingPet === '{{ $pet->id }}' && 'rotate-180'">
                                     <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                                 </svg>
                             </button>
 
                             {{-- Expandable edit form --}}
-                            <div x-show="editingPet === {{ $pet->id }}" x-collapse x-cloak class="border-t border-gray-100 px-4 pb-4 pt-3">
-                                <form method="POST" action="{{ route('pets.update', $pet) }}" class="space-y-3">
+                            <div x-show="editingPet === '{{ $pet->id }}'" x-collapse x-cloak class="border-t border-gray-100 px-4 pb-4 pt-3">
+                                <form method="POST" action="{{ route('pets.update', $pet->id) }}" class="space-y-3">
                                     @csrf
                                     @method('PATCH')
                                     <div class="grid grid-cols-2 gap-3">
@@ -180,7 +180,7 @@
                                         <button type="submit" class="flex-1 rounded-xl bg-brand-600 py-2.5 text-sm font-bold text-white">Save</button>
                                     </div>
                                 </form>
-                                <form method="POST" action="{{ route('pets.destroy', $pet) }}" class="mt-2">
+                                <form method="POST" action="{{ route('pets.destroy', $pet->id) }}" class="mt-2">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="w-full rounded-xl bg-red-50 py-2.5 text-sm font-semibold text-red-600">Delete pet</button>

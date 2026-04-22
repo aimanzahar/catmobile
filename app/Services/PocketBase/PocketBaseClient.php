@@ -1,0 +1,178 @@
+<?php
+
+namespace App\Services\PocketBase;
+
+use App\Services\PocketBase\Exceptions\PocketBaseAuthException;
+use App\Services\PocketBase\Exceptions\PocketBaseException;
+use App\Services\PocketBase\Exceptions\PocketBaseNotFoundException;
+use App\Services\PocketBase\Exceptions\PocketBaseValidationException;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Http;
+
+class PocketBaseClient
+{
+    private string $baseUrl;
+
+    private int $timeout;
+
+    public function __construct()
+    {
+        $this->baseUrl = rtrim((string) config('pocketbase.url'), '/');
+        $this->timeout = (int) config('pocketbase.timeout', 15);
+    }
+
+    public function authWithPassword(string $collection, string $identity, string $password): array
+    {
+        $response = $this->client()
+            ->asJson()
+            ->post($this->url("/api/collections/{$collection}/auth-with-password"), [
+                'identity' => $identity,
+                'password' => $password,
+            ]);
+
+        if ($response->status() === 400 || $response->status() === 401) {
+            throw new PocketBaseAuthException('Invalid credentials.', 401);
+        }
+
+        $this->ensureSuccess($response);
+
+        return [
+            'token' => $response->json('token'),
+            'record' => $response->json('record'),
+        ];
+    }
+
+    public function authRefresh(string $collection, string $token): array
+    {
+        $response = $this->client($token)
+            ->withBody('{}', 'application/json')
+            ->post($this->url("/api/collections/{$collection}/auth-refresh"));
+
+        if ($response->status() === 401 || $response->status() === 403) {
+            throw new PocketBaseAuthException('Token is invalid or expired.', 401);
+        }
+
+        $this->ensureSuccess($response);
+
+        return [
+            'token' => $response->json('token'),
+            'record' => $response->json('record'),
+        ];
+    }
+
+    public function createRecord(string $collection, array $data, ?string $token = null): array
+    {
+        $response = $this->client($token)
+            ->asJson()
+            ->post($this->url("/api/collections/{$collection}/records"), $data);
+
+        $this->ensureSuccess($response);
+
+        return $response->json();
+    }
+
+    public function updateRecord(string $collection, string $id, array $data, ?string $token = null): array
+    {
+        $response = $this->client($token)
+            ->asJson()
+            ->patch($this->url("/api/collections/{$collection}/records/{$id}"), $data);
+
+        $this->ensureSuccess($response);
+
+        return $response->json();
+    }
+
+    public function deleteRecord(string $collection, string $id, ?string $token = null): void
+    {
+        $response = $this->client($token)->delete($this->url("/api/collections/{$collection}/records/{$id}"));
+
+        $this->ensureSuccess($response);
+    }
+
+    public function getRecord(string $collection, string $id, ?string $token = null, ?string $expand = null): array
+    {
+        $query = $expand ? ['expand' => $expand] : [];
+
+        $response = $this->client($token)->get($this->url("/api/collections/{$collection}/records/{$id}"), $query);
+
+        $this->ensureSuccess($response);
+
+        return $response->json();
+    }
+
+    public function listRecords(string $collection, ?string $token = null, array $params = []): array
+    {
+        $query = array_filter([
+            'page' => $params['page'] ?? null,
+            'perPage' => $params['perPage'] ?? 200,
+            'sort' => $params['sort'] ?? null,
+            'filter' => $params['filter'] ?? null,
+            'expand' => $params['expand'] ?? null,
+        ], static fn ($value) => $value !== null);
+
+        $response = $this->client($token)->get($this->url("/api/collections/{$collection}/records"), $query);
+
+        $this->ensureSuccess($response);
+
+        return $response->json();
+    }
+
+    private function client(?string $token = null): PendingRequest
+    {
+        $request = Http::timeout($this->timeout)->acceptJson();
+
+        if ($token !== null) {
+            $request = $request->withHeaders(['Authorization' => $token]);
+        }
+
+        return $request;
+    }
+
+    private function url(string $path): string
+    {
+        return $this->baseUrl.$path;
+    }
+
+    private function ensureSuccess(Response $response): void
+    {
+        if ($response->successful()) {
+            return;
+        }
+
+        $status = $response->status();
+        $payload = $response->json();
+        $message = is_array($payload) ? ($payload['message'] ?? 'PocketBase request failed.') : 'PocketBase request failed.';
+
+        if ($status === 404) {
+            throw new PocketBaseNotFoundException($message, 404);
+        }
+
+        if ($status === 400 && is_array($payload) && ! empty($payload['data'])) {
+            throw (new PocketBaseValidationException($message, 422))
+                ->withErrors($this->flattenErrors($payload['data']));
+        }
+
+        if ($status === 401 || $status === 403) {
+            throw new PocketBaseAuthException($message, 401);
+        }
+
+        throw new PocketBaseException($message." (HTTP {$status})", $status);
+    }
+
+    private function flattenErrors(array $data): array
+    {
+        $errors = [];
+        foreach ($data as $field => $detail) {
+            if (is_array($detail) && isset($detail['message'])) {
+                $errors[$field] = [$detail['message']];
+            } elseif (is_array($detail)) {
+                foreach ($this->flattenErrors($detail) as $sub => $msgs) {
+                    $errors["{$field}.{$sub}"] = $msgs;
+                }
+            }
+        }
+
+        return $errors;
+    }
+}
