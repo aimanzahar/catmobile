@@ -6,7 +6,8 @@
     <meta name="theme-color" content="#FFF8F0">
     <meta name="description" content="Professional cat grooming services — Book online, track your pet's status in real-time, and enjoy convenient pet taxi service.">
 
-    <title>{{ config('app.name', 'Cat Grooming') }}</title>
+    <title>{{ config('app.name', 'PurrfectCat Groom') }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -34,8 +35,8 @@
             <div class="flex items-center justify-between h-14">
                 {{-- Logo --}}
                 <a href="#" class="flex items-center gap-2">
-                    <span class="text-2xl">🐱</span>
-                    <span class="text-lg font-bold text-brand-700">CatGroom</span>
+                    <img src="{{ asset('images/logo.jpeg') }}" alt="PurrfectCat Groom" class="h-8 w-8 rounded-md object-cover">
+                    <span class="text-lg font-bold text-brand-700">PurrfectCat Groom</span>
                 </a>
 
                 {{-- Desktop Nav --}}
@@ -120,10 +121,10 @@
         <div class="absolute bottom-0 left-0 w-96 h-96 bg-accent-400/10 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3 z-0"></div>
 
         <div class="relative z-10 text-center max-w-lg mx-auto">
-            {{-- Cat Illustration --}}
+            {{-- Brand Illustration --}}
             <div class="mb-6 animate-fade-in-up">
-                <div class="inline-flex items-center justify-center w-32 h-32 rounded-full bg-gradient-to-br from-brand-100 to-brand-200 shadow-xl">
-                    <span class="text-7xl leading-none" role="img" aria-label="Cat">🐱</span>
+                <div class="inline-flex items-center justify-center w-32 h-32 overflow-hidden rounded-full bg-white shadow-xl ring-4 ring-brand-100">
+                    <img src="{{ asset('images/logo.jpeg') }}" alt="PurrfectCat Groom" class="h-full w-full object-cover">
                 </div>
             </div>
 
@@ -534,8 +535,8 @@
                 {{-- Brand --}}
                 <div class="col-span-2 sm:col-span-1">
                     <div class="flex items-center gap-2 mb-3">
-                        <span class="text-2xl">🐱</span>
-                        <span class="text-lg font-bold">CatGroom</span>
+                        <img src="{{ asset('images/logo.jpeg') }}" alt="PurrfectCat Groom" class="h-8 w-8 rounded-md object-cover">
+                        <span class="text-lg font-bold">PurrfectCat Groom</span>
                     </div>
                     <p class="text-sm text-gray-400 leading-relaxed">
                         Professional cat grooming services with love and care.
@@ -577,7 +578,7 @@
 
             <div class="mt-12 pt-6 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <p class="text-xs text-gray-500">
-                    &copy; {{ date('Y') }} CatGroom. All rights reserved. Built as a Final Year Project.
+                    &copy; {{ date('Y') }} PurrfectCat Groom. All rights reserved. Built as a Final Year Project.
                 </p>
                 <div class="flex items-center gap-4 text-gray-400">
                     <a href="#" class="hover:text-brand-400 transition-colors" aria-label="Facebook">

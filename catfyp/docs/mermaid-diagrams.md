@@ -1,10 +1,10 @@
-# Cat Grooming — Mermaid Diagrams
+# PurrfectCat Groom — Mermaid Diagrams
 
 ## 1. Sitemap
 
 ```mermaid
 graph TD
-    ROOT["Cat Grooming"]
+    ROOT["PurrfectCat Groom"]
 
     ROOT --> PUBLIC["Public Pages"]
     ROOT --> AUTH["Authentication"]
@@ -60,7 +60,7 @@ graph TD
 
 ```mermaid
 mindmap
-  root((Cat Grooming))
+  root((PurrfectCat Groom))
     Services
       Basic Grooming
       Full Grooming
@@ -159,7 +159,7 @@ flowchart TD
 
 ```mermaid
 journey
-    title Customer Journey at Cat Grooming
+    title Customer Journey at PurrfectCat Groom
     section Discovery
       Visit app or website: 3: Customer
       Browse available services: 4: Customer

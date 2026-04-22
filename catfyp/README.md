@@ -1,4 +1,4 @@
-# Cat Grooming Mobile Application
+# PurrfectCat Groom Mobile Application
 
 A mobile-based cat grooming service reservation system built with NativePHP (frontend) and Appwrite (backend).
 

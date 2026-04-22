@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#FFF8F0">
-    <title>{{ $title ?? config('app.name', 'Cat Grooming') }}</title>
+    <title>{{ $title ?? config('app.name', 'PurrfectCat Groom') }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800" rel="stylesheet" />
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -18,8 +19,8 @@
         <header class="safe-top sticky top-0 z-40 border-b border-black/5 bg-white/90 backdrop-blur-xl">
             <div class="flex items-center justify-between px-5 pb-3">
                 <a href="{{ route('landing') }}" class="flex items-center gap-2 text-base font-extrabold text-brand-700">
-                    <span class="text-xl">🐱</span>
-                    <span>CatGroom</span>
+                    <img src="{{ asset('images/logo.jpeg') }}" alt="PurrfectCat Groom" class="h-7 w-7 rounded-md object-cover">
+                    <span>PurrfectCat Groom</span>
                 </a>
                 @guest
                     <div class="flex items-center gap-2 text-sm font-semibold">
