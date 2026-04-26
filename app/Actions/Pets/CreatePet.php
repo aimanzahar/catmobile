@@ -6,6 +6,7 @@ use App\Models\Pet;
 use App\Models\User;
 use App\Services\PocketBase\PocketBaseClient;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class CreatePet
@@ -18,10 +19,16 @@ class CreatePet
             throw new RuntimeException('Authenticated user is missing a PocketBase token.');
         }
 
+        unset($attributes['image_native_path']);
+
         $files = [];
         if (isset($attributes['image']) && $attributes['image'] instanceof UploadedFile) {
             $files['image'] = $attributes['image'];
             unset($attributes['image']);
+            Log::info('[CreatePet] forwarding image to PocketBase', [
+                'name' => $files['image']->getClientOriginalName(),
+                'size' => $files['image']->getSize(),
+            ]);
         } else {
             unset($attributes['image']);
         }

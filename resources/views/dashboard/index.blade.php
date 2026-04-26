@@ -167,7 +167,8 @@
                       x-data="{ preview: null }"
                       class="space-y-3 rounded-2xl bg-white p-4 border border-gray-100">
                     @csrf
-                    <label class="relative flex items-center gap-3 cursor-pointer">
+                    <label data-native-picker class="relative flex items-center gap-3 cursor-pointer"
+                           @native-picker-selected="preview = '/_native/local-file?path=' + encodeURIComponent($event.detail.path)">
                         <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-brand-100 text-2xl overflow-hidden">
                             <template x-if="preview"><img :src="preview" class="h-full w-full object-cover"></template>
                             <template x-if="!preview"><span>📷</span></template>
@@ -178,6 +179,7 @@
                         </div>
                         <input name="image" type="file" accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                                @change="preview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : null">
+                        <input type="hidden" name="image_native_path" data-native-path>
                     </label>
                     <div class="grid grid-cols-2 gap-3">
                         <input name="name" type="text" required class="input-mobile" placeholder="Pet name">
@@ -227,7 +229,8 @@
                                       class="space-y-3">
                                     @csrf
                                     @method('PATCH')
-                                    <label class="relative flex items-center gap-3 cursor-pointer">
+                                    <label data-native-picker class="relative flex items-center gap-3 cursor-pointer"
+                                           @native-picker-selected="preview = '/_native/local-file?path=' + encodeURIComponent($event.detail.path)">
                                         <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-brand-100 text-2xl overflow-hidden">
                                             <template x-if="preview"><img :src="preview" class="h-full w-full object-cover"></template>
                                             <template x-if="!preview"><span>🐱</span></template>
@@ -238,6 +241,7 @@
                                         </div>
                                         <input name="image" type="file" accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                                                @change="preview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : '{{ $pet->imageUrl() }}'">
+                                        <input type="hidden" name="image_native_path" data-native-path>
                                     </label>
                                     <div class="grid grid-cols-2 gap-3">
                                         <input name="name" type="text" value="{{ $pet->name }}" required class="input-mobile" placeholder="Name">
@@ -277,7 +281,8 @@
                       class="mt-5 space-y-4">
                     @csrf
                     @method('PATCH')
-                    <label class="relative flex items-center gap-4 cursor-pointer">
+                    <label data-native-picker class="relative flex items-center gap-4 cursor-pointer"
+                           @native-picker-selected="preview = '/_native/local-file?path=' + encodeURIComponent($event.detail.path)">
                         <div class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 text-xl font-extrabold text-brand-700 overflow-hidden ring-2 ring-brand-200">
                             <template x-if="preview"><img :src="preview" class="h-full w-full object-cover"></template>
                             <template x-if="!preview"><span>{{ strtoupper(substr($user->name, 0, 1)) }}</span></template>
@@ -288,6 +293,7 @@
                         </div>
                         <input name="avatar" type="file" accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                                @change="preview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : '{{ $user->avatarUrl() }}'">
+                        <input type="hidden" name="avatar_native_path" data-native-path>
                     </label>
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Name</label>
