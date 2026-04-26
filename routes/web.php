@@ -43,4 +43,5 @@ Route::middleware('auth')->group(function () {
     Route::post('/book/{booking}/payment', [BookingController::class, 'processPayment'])->name('bookings.payment.process');
     Route::get('/book/{booking}/payment/cancel', [BookingController::class, 'cancelPayment'])->name('bookings.payment.cancel');
     Route::get('/book/{booking}/confirmation', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
+    Route::get('/book/{booking}', [BookingController::class, 'show'])->name('bookings.show');
 });

@@ -81,18 +81,25 @@
                     <div class="mt-3 space-y-3">
                         @foreach ($upcoming_bookings as $booking)
                             <div class="card-accent-left">
-                                <div class="flex items-start justify-between gap-3">
-                                    <div class="min-w-0">
-                                        <h3 class="text-sm font-bold text-gray-900">{{ $booking->service->name }}</h3>
-                                        <p class="mt-0.5 text-xs text-gray-500">
-                                            {{ $booking->pet->name }} · {{ $booking->timeSlot->date->format('d M Y') }} · {{ \Illuminate\Support\Str::of($booking->timeSlot->start_time)->limit(5, '') }}
-                                        </p>
+                                <a href="{{ route('bookings.show', $booking->id) }}" class="block -m-px p-px active:opacity-80 transition-opacity">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="min-w-0">
+                                            <h3 class="text-sm font-bold text-gray-900">{{ $booking->service->name }}</h3>
+                                            <p class="mt-0.5 text-xs text-gray-500">
+                                                {{ $booking->pet->name }} · {{ $booking->timeSlot->date->format('d M Y') }} · {{ \Illuminate\Support\Str::of($booking->timeSlot->start_time)->limit(5, '') }}
+                                            </p>
+                                        </div>
+                                        <div class="flex flex-shrink-0 items-center gap-1.5">
+                                            <span class="rounded-full bg-brand-100 px-2.5 py-1 text-[0.625rem] font-bold uppercase text-brand-700">{{ str_replace('_', ' ', $booking->status) }}</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4 text-gray-300">
+                                                <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
                                     </div>
-                                    <span class="flex-shrink-0 rounded-full bg-brand-100 px-2.5 py-1 text-[0.625rem] font-bold uppercase text-brand-700">{{ str_replace('_', ' ', $booking->status) }}</span>
-                                </div>
-                                @if ($booking->taxiRequest)
-                                    <p class="mt-2 text-xs text-gray-400">🚕 Taxi: {{ ucfirst($booking->taxiRequest->status) }}</p>
-                                @endif
+                                    @if ($booking->taxiRequest)
+                                        <p class="mt-2 text-xs text-gray-400">🚕 Taxi: {{ ucfirst($booking->taxiRequest->status) }}</p>
+                                    @endif
+                                </a>
                                 @if (in_array($booking->status, ['pending', 'confirmed'], true) || $booking->payment_status === 'unpaid')
                                     <div class="mt-3 flex flex-wrap gap-2">
                                         @if ($booking->payment_status === 'unpaid' && $booking->status !== 'cancelled')
@@ -130,13 +137,19 @@
                 @else
                     <div class="mt-3 space-y-2">
                         @foreach ($booking_history as $booking)
-                            <div class="flex items-center justify-between gap-3 rounded-xl bg-white p-3.5 border border-gray-100">
+                            <a href="{{ route('bookings.show', $booking->id) }}"
+                               class="flex items-center justify-between gap-3 rounded-xl bg-white p-3.5 border border-gray-100 active:opacity-80 transition-opacity">
                                 <div class="min-w-0">
                                     <h3 class="text-sm font-semibold text-gray-900">{{ $booking->service->name }}</h3>
                                     <p class="text-xs text-gray-500">{{ $booking->pet->name }} · {{ $booking->timeSlot->date->format('d M Y') }}</p>
                                 </div>
-                                <span class="flex-shrink-0 rounded-full bg-gray-100 px-2.5 py-1 text-[0.625rem] font-bold uppercase text-gray-500">{{ str_replace('_', ' ', $booking->status) }}</span>
-                            </div>
+                                <div class="flex flex-shrink-0 items-center gap-1.5">
+                                    <span class="rounded-full bg-gray-100 px-2.5 py-1 text-[0.625rem] font-bold uppercase text-gray-500">{{ str_replace('_', ' ', $booking->status) }}</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4 text-gray-300">
+                                        <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </a>
                         @endforeach
                     </div>
                 @endif

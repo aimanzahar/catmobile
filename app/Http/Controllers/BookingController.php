@@ -92,6 +92,16 @@ class BookingController extends Controller
         ]);
     }
 
+    public function show(Request $request, string $booking): View
+    {
+        $bookingModel = $this->loadOwnedBooking($request, $booking);
+
+        return view('bookings.show', [
+            'booking' => $bookingModel,
+            'activeSection' => 'overview',
+        ]);
+    }
+
     private function fetchActiveServices()
     {
         $response = $this->client->listRecords('cg_services', null, [
