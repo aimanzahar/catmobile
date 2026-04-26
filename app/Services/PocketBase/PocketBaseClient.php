@@ -8,10 +8,15 @@ use App\Services\PocketBase\Exceptions\PocketBaseNotFoundException;
 use App\Services\PocketBase\Exceptions\PocketBaseValidationException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class PocketBaseClient
 {
+    private const SUPERUSER_CACHE_KEY = 'pocketbase:superuser_token';
+
+    private const SUPERUSER_CACHE_TTL = 1800;
+
     private string $baseUrl;
 
     private int $timeout;
@@ -20,6 +25,31 @@ class PocketBaseClient
     {
         $this->baseUrl = rtrim((string) config('pocketbase.url'), '/');
         $this->timeout = (int) config('pocketbase.timeout', 15);
+    }
+
+    public function superuserToken(): string
+    {
+        $cached = Cache::get(self::SUPERUSER_CACHE_KEY);
+        if (is_string($cached) && $cached !== '') {
+            return $cached;
+        }
+
+        $email = (string) config('pocketbase.superuser_email');
+        $password = (string) config('pocketbase.superuser_password');
+
+        $response = $this->client()
+            ->asJson()
+            ->post($this->url('/api/collections/_superusers/auth-with-password'), [
+                'identity' => $email,
+                'password' => $password,
+            ]);
+
+        $this->ensureSuccess($response);
+
+        $token = (string) $response->json('token');
+        Cache::put(self::SUPERUSER_CACHE_KEY, $token, self::SUPERUSER_CACHE_TTL);
+
+        return $token;
     }
 
     public function authWithPassword(string $collection, string $identity, string $password): array

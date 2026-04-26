@@ -49,6 +49,21 @@
              ════════════════════════════════════════════ --}}
         <div x-show="tab === 'overview'" x-cloak class="space-y-5">
 
+            {{-- Book a grooming CTA --}}
+            <a href="{{ route('bookings.index') }}"
+               class="flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-brand-500 to-brand-600 p-4 text-white shadow-md active:scale-[0.99] transition-transform">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-sm font-extrabold">Book a grooming</div>
+                        <div class="text-[11px] opacity-90">Schedule your cat's next pampering session</div>
+                    </div>
+                </div>
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+
             {{-- Upcoming bookings --}}
             <section>
                 <h2 class="text-base font-bold text-gray-900">Upcoming Bookings</h2>
@@ -73,6 +88,25 @@
                                 </div>
                                 @if ($booking->taxiRequest)
                                     <p class="mt-2 text-xs text-gray-400">🚕 Taxi: {{ ucfirst($booking->taxiRequest->status) }}</p>
+                                @endif
+                                @if (in_array($booking->status, ['pending', 'confirmed'], true) || $booking->payment_status === 'unpaid')
+                                    <div class="mt-3 flex flex-wrap gap-2">
+                                        @if ($booking->payment_status === 'unpaid' && $booking->status !== 'cancelled')
+                                            <a href="{{ route('bookings.payment', $booking->id) }}"
+                                               class="inline-flex items-center gap-1 rounded-lg bg-brand-50 px-3 py-1.5 text-[11px] font-bold text-brand-700 hover:bg-brand-100">
+                                                💳 Pay now
+                                            </a>
+                                        @endif
+                                        @if (in_array($booking->status, ['pending', 'confirmed'], true))
+                                            <form method="POST" action="{{ route('dashboard.bookings.cancel', $booking->id) }}"
+                                                  onsubmit="return confirm('Cancel this booking?');">
+                                                @csrf
+                                                <button type="submit" class="inline-flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-[11px] font-bold text-red-600 hover:bg-red-100">
+                                                    Cancel
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
                                 @endif
                             </div>
                         @endforeach

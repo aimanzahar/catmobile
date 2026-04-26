@@ -1,0 +1,331 @@
+- generic [active] [ref=e1]:
+  - generic:
+    - generic: 🐾
+    - generic: 🐾
+    - generic: 🐾
+    - generic: 🐾
+  - navigation [ref=e2]:
+    - generic [ref=e4]:
+      - link "PurrfectCat Groom PurrfectCat Groom" [ref=e5] [cursor=pointer]:
+        - /url: "#"
+        - img "PurrfectCat Groom" [ref=e6]
+        - generic [ref=e7]: PurrfectCat Groom
+      - generic [ref=e8]:
+        - link "Services" [ref=e9] [cursor=pointer]:
+          - /url: "#services"
+        - link "How It Works" [ref=e10] [cursor=pointer]:
+          - /url: "#how-it-works"
+        - link "Features" [ref=e11] [cursor=pointer]:
+          - /url: "#features"
+        - link "FAQ" [ref=e12] [cursor=pointer]:
+          - /url: "#faq"
+        - link "Contact" [ref=e13] [cursor=pointer]:
+          - /url: "#contact"
+      - generic [ref=e14]:
+        - link "Login" [ref=e15] [cursor=pointer]:
+          - /url: http://mobile-app.test/login
+        - link "Register" [ref=e16] [cursor=pointer]:
+          - /url: http://mobile-app.test/register
+  - generic [ref=e21]:
+    - img "PurrfectCat Groom" [ref=e24]
+    - generic [ref=e26]: Now Accepting Bookings
+    - heading "Purrfect Care for Your Feline" [level=1] [ref=e28]
+    - paragraph [ref=e29]: Professional cat grooming with online booking, real-time pet tracking, and convenient pet taxi service — all in one app.
+    - generic [ref=e30]:
+      - link "Book Appointment Now" [ref=e31] [cursor=pointer]:
+        - /url: http://mobile-app.test/book
+        - img [ref=e32]
+        - text: Book Appointment Now
+      - link "See How It Works" [ref=e34] [cursor=pointer]:
+        - /url: "#how-it-works"
+        - img [ref=e35]
+        - text: See How It Works
+    - generic [ref=e38]:
+      - generic [ref=e39]:
+        - generic [ref=e40]: ★★★★★
+        - generic [ref=e41]: 4.9/5
+      - generic [ref=e43]: 500+ Happy Cats
+      - generic [ref=e45]: Est. 2024
+  - generic [ref=e47]:
+    - generic [ref=e48]:
+      - generic [ref=e49]: Our Services
+      - heading "Grooming Packages" [level=2] [ref=e50]
+      - paragraph [ref=e51]: Choose the perfect pampering experience for your beloved cat
+    - generic [ref=e52]:
+      - generic [ref=e53]:
+        - img [ref=e55]
+        - heading "Basic Grooming" [level=3] [ref=e57]
+        - paragraph [ref=e58]: Essential grooming package including bath, blow dry, nail trimming, ear cleaning, and light brushing. Perfect for regular maintenance of your cat's hygiene.
+        - generic [ref=e60]:
+          - img [ref=e61]
+          - text: 45 min
+        - generic [ref=e63]:
+          - generic [ref=e64]: RM30
+          - link "Book" [ref=e65] [cursor=pointer]:
+            - /url: http://mobile-app.test/book/create/basic-grooming
+            - text: Book
+            - img [ref=e66]
+      - generic [ref=e68]:
+        - generic [ref=e70]: ⭐ Most Popular
+        - img [ref=e72]
+        - heading "Full Grooming" [level=3] [ref=e74]
+        - paragraph [ref=e75]: Complete grooming experience with bath, full haircut & styling, nail trimming, ear cleaning, teeth brushing, and de-shedding treatment.
+        - generic [ref=e77]:
+          - img [ref=e78]
+          - text: 90 min
+        - generic [ref=e80]:
+          - generic [ref=e81]: RM60
+          - link "Book" [ref=e82] [cursor=pointer]:
+            - /url: http://mobile-app.test/book/create/full-grooming
+            - text: Book
+            - img [ref=e83]
+      - generic [ref=e85]:
+        - img [ref=e87]
+        - heading "Spa Package" [level=3] [ref=e89]
+        - paragraph [ref=e90]: Premium pampering session featuring everything in Full Grooming plus aromatherapy bath, deep conditioning, paw massage, and premium shampoo treatment.
+        - generic [ref=e92]:
+          - img [ref=e93]
+          - text: 120 min
+        - generic [ref=e95]:
+          - generic [ref=e96]: RM90
+          - link "Book" [ref=e97] [cursor=pointer]:
+            - /url: http://mobile-app.test/book/create/spa-package
+            - text: Book
+            - img [ref=e98]
+      - generic [ref=e100]:
+        - img [ref=e102]
+        - heading "Pet Taxi" [level=3] [ref=e104]
+        - paragraph [ref=e105]: Convenient door-to-door pickup and drop-off service for your cat. Our trained drivers ensure safe and comfortable transportation.
+        - generic [ref=e107]:
+          - img [ref=e108]
+          - text: 30 min
+        - generic [ref=e110]:
+          - generic [ref=e111]: RM25
+          - link "Book" [ref=e112] [cursor=pointer]:
+            - /url: http://mobile-app.test/book/create/pet-taxi
+            - text: Book
+            - img [ref=e113]
+  - generic [ref=e116]:
+    - generic [ref=e117]:
+      - generic [ref=e118]: Simple Process
+      - heading "How It Works" [level=2] [ref=e119]
+      - paragraph [ref=e120]: Book your cat's grooming session in 4 easy steps
+    - generic [ref=e121]:
+      - generic [ref=e122]:
+        - generic [ref=e123]:
+          - generic [ref=e124]: 🔍
+          - generic [ref=e125]: "01"
+        - heading "Browse Services" [level=3] [ref=e126]
+        - paragraph [ref=e127]: Explore our grooming packages and choose the perfect one for your cat.
+      - generic [ref=e128]:
+        - generic [ref=e129]:
+          - generic [ref=e130]: 📅
+          - generic [ref=e131]: "02"
+        - heading "Pick a Slot" [level=3] [ref=e132]
+        - paragraph [ref=e133]: Select your preferred date and time slot from available options.
+      - generic [ref=e134]:
+        - generic [ref=e135]:
+          - generic [ref=e136]: 🚗
+          - generic [ref=e137]: "03"
+        - heading "Drop Off or Taxi" [level=3] [ref=e138]
+        - paragraph [ref=e139]: Bring your cat or use our pet taxi service for hassle-free pickup.
+      - generic [ref=e140]:
+        - generic [ref=e141]:
+          - generic [ref=e142]: ✨
+          - generic [ref=e143]: "04"
+        - heading "Collect & Enjoy" [level=3] [ref=e144]
+        - paragraph [ref=e145]: Get notified when your cat is ready. Pick up your freshly groomed feline!
+  - generic [ref=e147]:
+    - generic [ref=e148]:
+      - generic [ref=e149]: Why Choose Us
+      - heading "Everything You Need" [level=2] [ref=e150]
+      - paragraph [ref=e151]: A complete digital grooming experience for you and your cat
+    - generic [ref=e152]:
+      - generic [ref=e153]:
+        - generic [ref=e155]: 📱
+        - heading "Easy Mobile Booking" [level=3] [ref=e156]
+        - paragraph [ref=e157]: Book anytime, anywhere with our intuitive mobile app.
+      - generic [ref=e158]:
+        - generic [ref=e160]: 📍
+        - heading "Real-Time Tracking" [level=3] [ref=e161]
+        - paragraph [ref=e162]: Track your pet's grooming status live in the app.
+      - generic [ref=e163]:
+        - generic [ref=e165]: 💳
+        - heading "Online Payments" [level=3] [ref=e166]
+        - paragraph [ref=e167]: Pay securely online or choose cash on arrival.
+      - generic [ref=e168]:
+        - generic [ref=e170]: 🔔
+        - heading "Push Notifications" [level=3] [ref=e171]
+        - paragraph [ref=e172]: Get instant alerts for bookings, updates, and when your pet is ready.
+      - generic [ref=e173]:
+        - generic [ref=e175]: 🐈
+        - heading "Pet Profiles" [level=3] [ref=e176]
+        - paragraph [ref=e177]: Save your cat's details — breed, weight, and special notes.
+      - generic [ref=e178]:
+        - generic [ref=e180]: 🚕
+        - heading "Pet Taxi Service" [level=3] [ref=e181]
+        - paragraph [ref=e182]: Door-to-door pickup and drop-off for your convenience.
+  - generic [ref=e184]:
+    - generic [ref=e185]:
+      - generic [ref=e186]: Gallery
+      - heading "Happy Cats, Happy Owners" [level=2] [ref=e187]
+      - paragraph [ref=e188]: See the beautiful results of our grooming services
+    - generic [ref=e189]:
+      - generic [ref=e190] [cursor=pointer]:
+        - generic [ref=e192]: 😺
+        - paragraph [ref=e194]: After Basic Grooming
+      - generic [ref=e195] [cursor=pointer]:
+        - generic [ref=e197]: 😸
+        - paragraph [ref=e199]: Spa Day Bliss
+      - generic [ref=e200] [cursor=pointer]:
+        - generic [ref=e202]: 😻
+        - paragraph [ref=e204]: Full Makeover
+      - generic [ref=e205] [cursor=pointer]:
+        - generic [ref=e207]: 🙀
+        - paragraph [ref=e209]: Before & After
+      - generic [ref=e210] [cursor=pointer]:
+        - generic [ref=e212]: 😽
+        - paragraph [ref=e214]: Relaxed & Clean
+      - generic [ref=e215] [cursor=pointer]:
+        - generic [ref=e217]: 😼
+        - paragraph [ref=e219]: Ready to Go Home
+  - generic [ref=e221]:
+    - generic [ref=e222]:
+      - generic [ref=e223]: Testimonials
+      - heading "What Cat Parents Say" [level=2] [ref=e224]
+    - generic [ref=e225]:
+      - generic [ref=e226]:
+        - generic [ref=e227]:
+          - generic [ref=e228]: ★
+          - generic [ref=e229]: ★
+          - generic [ref=e230]: ★
+          - generic [ref=e231]: ★
+          - generic [ref=e232]: ★
+        - paragraph [ref=e233]: "\"My cat Mimi always comes back looking amazing! The online booking makes it so easy to schedule. Absolutely love the pet taxi service too!\""
+        - generic [ref=e234]:
+          - generic [ref=e235]: 👩
+          - generic [ref=e236]: Sarah A.
+      - generic [ref=e237]:
+        - generic [ref=e238]:
+          - generic [ref=e239]: ★
+          - generic [ref=e240]: ★
+          - generic [ref=e241]: ★
+          - generic [ref=e242]: ★
+          - generic [ref=e243]: ★
+        - paragraph [ref=e244]: "\"Best grooming service in town. The real-time tracking feature gives me peace of mind knowing my cat is in good hands.\""
+        - generic [ref=e245]:
+          - generic [ref=e246]: 👨
+          - generic [ref=e247]: Ahmad R.
+      - generic [ref=e248]:
+        - generic [ref=e249]:
+          - generic [ref=e250]: ★
+          - generic [ref=e251]: ★
+          - generic [ref=e252]: ★
+          - generic [ref=e253]: ★
+          - generic [ref=e254]: ★
+        - paragraph [ref=e255]: "\"The spa package is worth every ringgit! My Persian cat looks and smells incredible after every visit. Highly recommend!\""
+        - generic [ref=e256]:
+          - generic [ref=e257]: 👩‍🦰
+          - generic [ref=e258]: Lisa T.
+  - generic [ref=e260]:
+    - generic [ref=e261]:
+      - generic [ref=e262]: FAQ
+      - heading "Frequently Asked Questions" [level=2] [ref=e263]
+    - generic [ref=e264]:
+      - button "What grooming services do you offer?" [ref=e266]:
+        - generic [ref=e267]: What grooming services do you offer?
+        - img [ref=e268]
+      - button "How does the pet taxi service work?" [ref=e271]:
+        - generic [ref=e272]: How does the pet taxi service work?
+        - img [ref=e273]
+      - button "Can I track my cat during grooming?" [ref=e276]:
+        - generic [ref=e277]: Can I track my cat during grooming?
+        - img [ref=e278]
+      - button "What payment methods do you accept?" [ref=e281]:
+        - generic [ref=e282]: What payment methods do you accept?
+        - img [ref=e283]
+      - button "How far in advance should I book?" [ref=e286]:
+        - generic [ref=e287]: How far in advance should I book?
+        - img [ref=e288]
+      - button "Is my cat safe during the taxi ride?" [ref=e291]:
+        - generic [ref=e292]: Is my cat safe during the taxi ride?
+        - img [ref=e293]
+  - generic [ref=e296]:
+    - generic [ref=e297]:
+      - generic [ref=e298]: Contact Us
+      - heading "Get In Touch" [level=2] [ref=e299]
+      - paragraph [ref=e300]: Have questions? We'd love to hear from you
+    - generic [ref=e301]:
+      - generic [ref=e302]:
+        - generic [ref=e304]: 📍
+        - heading "Visit Us" [level=3] [ref=e305]
+        - paragraph [ref=e306]:
+          - text: 123 Jalan Kucing
+          - text: Kuala Lumpur, 50000
+          - text: Malaysia
+      - generic [ref=e307]:
+        - generic [ref=e309]: 📞
+        - heading "Call Us" [level=3] [ref=e310]
+        - paragraph [ref=e311]: +60 12-345 6789
+        - paragraph [ref=e312]: Mon-Sat, 9AM - 7PM
+      - generic [ref=e313]:
+        - generic [ref=e315]: ✉️
+        - heading "Email Us" [level=3] [ref=e316]
+        - paragraph [ref=e317]: hello@catgroom.my
+        - paragraph [ref=e318]: We reply within 24 hours
+  - generic [ref=e324]:
+    - generic [ref=e325]: 🐱
+    - heading "Ready to Pamper Your Cat?" [level=2] [ref=e326]
+    - paragraph [ref=e327]: Book your first grooming session today and give your feline friend the care they deserve.
+    - link "Book Now — It's Easy!" [ref=e328] [cursor=pointer]:
+      - /url: "#services"
+      - text: Book Now — It's Easy!
+      - img [ref=e329]
+  - contentinfo [ref=e331]:
+    - generic [ref=e332]:
+      - generic [ref=e333]:
+        - generic [ref=e334]:
+          - generic [ref=e335]:
+            - img "PurrfectCat Groom" [ref=e336]
+            - generic [ref=e337]: PurrfectCat Groom
+          - paragraph [ref=e338]: Professional cat grooming services with love and care.
+        - generic [ref=e339]:
+          - heading "Quick Links" [level=4] [ref=e340]
+          - list [ref=e341]:
+            - listitem [ref=e342]:
+              - link "Services" [ref=e343] [cursor=pointer]:
+                - /url: "#services"
+            - listitem [ref=e344]:
+              - link "How It Works" [ref=e345] [cursor=pointer]:
+                - /url: "#how-it-works"
+            - listitem [ref=e346]:
+              - link "FAQ" [ref=e347] [cursor=pointer]:
+                - /url: "#faq"
+            - listitem [ref=e348]:
+              - link "Contact" [ref=e349] [cursor=pointer]:
+                - /url: "#contact"
+        - generic [ref=e350]:
+          - heading "Services" [level=4] [ref=e351]
+          - list [ref=e352]:
+            - listitem [ref=e353]: Basic Grooming
+            - listitem [ref=e354]: Full Grooming
+            - listitem [ref=e355]: Spa Package
+            - listitem [ref=e356]: Pet Taxi
+        - generic [ref=e357]:
+          - heading "Opening Hours" [level=4] [ref=e358]
+          - list [ref=e359]:
+            - listitem [ref=e360]: "Mon-Fri: 9AM - 7PM"
+            - listitem [ref=e361]: "Saturday: 9AM - 5PM"
+            - listitem [ref=e362]: "Sunday: Closed"
+      - generic [ref=e363]:
+        - paragraph [ref=e364]: © 2026 PurrfectCat Groom. All rights reserved. Built as a Final Year Project.
+        - generic [ref=e365]:
+          - link "Facebook" [ref=e366] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e367]
+          - link "Instagram" [ref=e369] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e370]
+          - link "WhatsApp" [ref=e372] [cursor=pointer]:
+            - /url: "#"
+            - img [ref=e373]

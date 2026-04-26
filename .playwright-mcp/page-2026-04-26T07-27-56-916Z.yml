@@ -1,0 +1,65 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - link "PurrfectCat Groom PurrfectCat Groom" [ref=e5] [cursor=pointer]:
+      - /url: http://mobile-app.test
+      - img "PurrfectCat Groom" [ref=e6]
+      - generic [ref=e7]: PurrfectCat Groom
+  - main [ref=e8]:
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - link "Back to services" [ref=e11] [cursor=pointer]:
+          - /url: http://mobile-app.test/book
+          - img [ref=e12]
+          - text: Back to services
+        - heading "Book Full Grooming" [level=1] [ref=e14]
+        - paragraph [ref=e15]: Fill in the details below
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]:
+            - generic [ref=e19]: ✨
+            - generic [ref=e20]:
+              - heading "Full Grooming" [level=2] [ref=e21]
+              - paragraph [ref=e22]: 90 min · RM60.00
+          - paragraph [ref=e23]: Complete grooming experience with bath, full haircut & styling, nail trimming, ear cleaning, teeth brushing, and de-shedding treatment.
+        - generic [ref=e24]:
+          - heading "Pick your cat" [level=2] [ref=e25]
+          - paragraph [ref=e26]: Choose which cat needs grooming
+          - generic [ref=e27]: You haven't added any cats yet. Add one below — we'll save it to your profile.
+          - generic [ref=e28]:
+            - textbox "Cat's name" [ref=e29]
+            - textbox "Breed (optional)" [ref=e30]
+            - spinbutton [ref=e31]
+          - textbox "Special notes (allergies, behavior...)" [ref=e32]
+        - generic [ref=e33]:
+          - heading "Pick a date" [level=2] [ref=e34]
+          - paragraph [ref=e35]: Available up to 30 days ahead
+          - textbox [ref=e36]
+        - generic [ref=e37]:
+          - heading "Pick a time" [level=2] [ref=e38]
+          - paragraph [ref=e39]: Select a date first
+        - generic [ref=e41] [cursor=pointer]:
+          - checkbox "Add Pet Taxi pickup Door-to-door pickup and drop-off — RM15.00" [ref=e42]
+          - generic [ref=e43]:
+            - generic [ref=e44]: Add Pet Taxi pickup
+            - generic [ref=e45]: Door-to-door pickup and drop-off — RM15.00
+        - generic [ref=e46]:
+          - text: Notes (optional)
+          - textbox "Anything we should know?" [ref=e47]
+        - generic [ref=e50]:
+          - generic [ref=e51]:
+            - generic [ref=e52]: Total
+            - generic [ref=e53]: RM60.00
+          - button "Continue to Payment" [ref=e54]
+  - navigation [ref=e55]:
+    - link "Home" [ref=e56] [cursor=pointer]:
+      - /url: http://mobile-app.test/dashboard?section=overview
+      - img [ref=e57]
+      - generic [ref=e59]: Home
+    - link "Pets" [ref=e60] [cursor=pointer]:
+      - /url: http://mobile-app.test/dashboard?section=pets
+      - img [ref=e61]
+      - generic [ref=e63]: Pets
+    - link "Profile" [ref=e64] [cursor=pointer]:
+      - /url: http://mobile-app.test/dashboard?section=profile
+      - img [ref=e65]
+      - generic [ref=e67]: Profile
