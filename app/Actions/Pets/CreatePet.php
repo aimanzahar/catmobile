@@ -5,6 +5,7 @@ namespace App\Actions\Pets;
 use App\Models\Pet;
 use App\Models\User;
 use App\Services\PocketBase\PocketBaseClient;
+use Illuminate\Http\UploadedFile;
 use RuntimeException;
 
 class CreatePet
@@ -17,10 +18,19 @@ class CreatePet
             throw new RuntimeException('Authenticated user is missing a PocketBase token.');
         }
 
+        $files = [];
+        if (isset($attributes['image']) && $attributes['image'] instanceof UploadedFile) {
+            $files['image'] = $attributes['image'];
+            unset($attributes['image']);
+        } else {
+            unset($attributes['image']);
+        }
+
         $record = $this->client->createRecord(
             'cg_pets',
             array_merge($attributes, ['user' => $user->id]),
             $user->pocketbase_token,
+            $files,
         );
 
         return Pet::fromRecord($record);

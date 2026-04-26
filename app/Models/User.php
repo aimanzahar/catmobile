@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Auth\PocketBaseGuard;
+use App\Services\PocketBase\PocketBaseClient;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 class User implements Authenticatable
@@ -15,10 +17,14 @@ class User implements Authenticatable
         public readonly bool $verified = false,
         public readonly ?string $created = null,
         public readonly ?string $updated = null,
+        public readonly ?string $avatar = null,
     ) {}
 
     public static function fromRecord(array $record, ?string $token = null): self
     {
+        $rawAvatar = $record['avatar'] ?? null;
+        $avatar = is_string($rawAvatar) && $rawAvatar !== '' ? $rawAvatar : null;
+
         $user = new self(
             id: (string) ($record['id'] ?? ''),
             name: (string) ($record['name'] ?? ''),
@@ -26,10 +32,25 @@ class User implements Authenticatable
             verified: (bool) ($record['verified'] ?? false),
             created: isset($record['created']) ? (string) $record['created'] : null,
             updated: isset($record['updated']) ? (string) $record['updated'] : null,
+            avatar: $avatar,
         );
         $user->pocketbase_token = $token;
 
         return $user;
+    }
+
+    public function avatarUrl(?string $thumb = '100x100'): ?string
+    {
+        if ($this->avatar === null || $this->avatar === '') {
+            return null;
+        }
+
+        return app(PocketBaseClient::class)->fileUrl(
+            PocketBaseGuard::USERS_COLLECTION,
+            $this->id,
+            $this->avatar,
+            $thumb,
+        );
     }
 
     public function getAuthIdentifierName(): string

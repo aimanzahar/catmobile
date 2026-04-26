@@ -17,6 +17,8 @@ class PetResource extends JsonResource
             'weight' => $this->weight,
             'special_notes' => $this->special_notes,
             'image' => $this->image,
+            'image_url' => $this->resource->imageUrl(null),
+            'image_thumb_url' => $this->resource->imageUrl('100x100'),
         ];
     }
 }

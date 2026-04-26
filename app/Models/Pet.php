@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Services\PocketBase\PocketBaseClient;
+
 class Pet
 {
     public function __construct(
@@ -14,6 +16,15 @@ class Pet
         public readonly ?string $image = null,
         public readonly ?string $user = null,
     ) {}
+
+    public function imageUrl(?string $thumb = '100x100'): ?string
+    {
+        if ($this->image === null || $this->image === '') {
+            return null;
+        }
+
+        return app(PocketBaseClient::class)->fileUrl('cg_pets', $this->id, $this->image, $thumb);
+    }
 
     public static function fromRecord(array $record): self
     {

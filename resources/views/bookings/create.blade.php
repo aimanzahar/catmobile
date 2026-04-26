@@ -65,7 +65,11 @@
                         @foreach ($pets as $pet)
                             <label class="flex items-center gap-3 rounded-xl border border-gray-200 px-3 py-2.5 cursor-pointer hover:border-brand-300 has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50">
                                 <input type="radio" name="pet_id" value="{{ $pet->id }}" required @checked(old('pet_id') === $pet->id || $loop->first) class="h-4 w-4 accent-brand-600">
-                                <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-100 text-base">🐱</div>
+                                @if ($pet->imageUrl())
+                                    <img src="{{ $pet->imageUrl('100x100') }}" alt="{{ $pet->name }}" class="h-9 w-9 rounded-lg object-cover">
+                                @else
+                                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-100 text-base">🐱</div>
+                                @endif
                                 <div class="min-w-0">
                                     <div class="text-sm font-bold text-gray-900 truncate">{{ $pet->name }}</div>
                                     <div class="text-[11px] text-gray-500 truncate">{{ $pet->breed ?: 'Breed not set' }}{{ $pet->age ? ' · '.$pet->age.'y' : '' }}</div>

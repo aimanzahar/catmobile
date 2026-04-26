@@ -27,11 +27,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/pets', [PetController::class, 'index'])->name('pets.index');
     Route::post('/pets', [PetController::class, 'store'])->name('pets.store');
-    Route::patch('/pets/{pet}', [PetController::class, 'update'])->name('pets.update');
+    Route::match(['post', 'patch'], '/pets/{pet}', [PetController::class, 'update'])->name('pets.update');
     Route::delete('/pets/{pet}', [PetController::class, 'destroy'])->name('pets.destroy');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::match(['post', 'patch'], '/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     Route::get('/book', [BookingController::class, 'index'])->name('bookings.index');
     Route::get('/book/create/{service}', [BookingController::class, 'create'])->name('bookings.create');

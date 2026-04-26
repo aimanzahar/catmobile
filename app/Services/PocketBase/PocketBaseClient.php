@@ -8,6 +8,7 @@ use App\Services\PocketBase\Exceptions\PocketBaseNotFoundException;
 use App\Services\PocketBase\Exceptions\PocketBaseValidationException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
@@ -91,26 +92,82 @@ class PocketBaseClient
         ];
     }
 
-    public function createRecord(string $collection, array $data, ?string $token = null): array
+    public function createRecord(string $collection, array $data, ?string $token = null, array $files = []): array
     {
-        $response = $this->client($token)
-            ->asJson()
-            ->post($this->url("/api/collections/{$collection}/records"), $data);
+        if ($files !== []) {
+            $request = $this->multipartRequest($this->client($token), $data, $files);
+            $response = $request->post($this->url("/api/collections/{$collection}/records"));
+        } else {
+            $response = $this->client($token)
+                ->asJson()
+                ->post($this->url("/api/collections/{$collection}/records"), $data);
+        }
 
         $this->ensureSuccess($response);
 
         return $response->json();
     }
 
-    public function updateRecord(string $collection, string $id, array $data, ?string $token = null): array
+    public function updateRecord(string $collection, string $id, array $data, ?string $token = null, array $files = []): array
     {
-        $response = $this->client($token)
-            ->asJson()
-            ->patch($this->url("/api/collections/{$collection}/records/{$id}"), $data);
+        if ($files !== []) {
+            $request = $this->multipartRequest($this->client($token), $data, $files);
+            $response = $request->patch($this->url("/api/collections/{$collection}/records/{$id}"));
+        } else {
+            $response = $this->client($token)
+                ->asJson()
+                ->patch($this->url("/api/collections/{$collection}/records/{$id}"), $data);
+        }
 
         $this->ensureSuccess($response);
 
         return $response->json();
+    }
+
+    public function fileUrl(string $collection, string $recordId, string $filename, ?string $thumb = null): string
+    {
+        $url = $this->baseUrl."/api/files/{$collection}/{$recordId}/{$filename}";
+        if ($thumb !== null && $thumb !== '') {
+            $url .= '?thumb='.urlencode($thumb);
+        }
+
+        return $url;
+    }
+
+    /**
+     * Build a Guzzle multipart body directly. We bypass Laravel's `attach()` helper because
+     * it runs the multipart entry through `array_filter`, which strips falsy values like
+     * `''` and `'0'` from the `contents` key and crashes Guzzle with "A 'contents' key is required".
+     *
+     * @param  array<string, mixed>  $fields
+     * @param  array<string, UploadedFile>  $files
+     */
+    private function multipartRequest(PendingRequest $request, array $fields, array $files): PendingRequest
+    {
+        $multipart = [];
+
+        foreach ($fields as $key => $value) {
+            if ($value === null) {
+                continue;
+            }
+            $multipart[] = [
+                'name' => $key,
+                'contents' => is_scalar($value) ? (string) $value : json_encode($value),
+            ];
+        }
+
+        foreach ($files as $field => $file) {
+            if (! $file instanceof UploadedFile) {
+                continue;
+            }
+            $multipart[] = [
+                'name' => $field,
+                'contents' => file_get_contents($file->getRealPath()),
+                'filename' => $file->getClientOriginalName() ?: ($field.'.bin'),
+            ];
+        }
+
+        return $request->bodyFormat('multipart')->withOptions(['multipart' => $multipart]);
     }
 
     public function deleteRecord(string $collection, string $id, ?string $token = null): void

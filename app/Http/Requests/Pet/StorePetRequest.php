@@ -19,6 +19,7 @@ class StorePetRequest extends FormRequest
             'age' => ['nullable', 'integer', 'min:0', 'max:99'],
             'weight' => ['nullable', 'numeric', 'min:0'],
             'special_notes' => ['nullable', 'string', 'max:2000'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
         ];
     }
 }

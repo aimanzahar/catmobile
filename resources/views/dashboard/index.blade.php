@@ -5,7 +5,11 @@
 
         {{-- ── Greeting header ── --}}
         <div class="flex items-center gap-3.5">
-            <div class="avatar-circle">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+            @if ($user->avatarUrl())
+                <img src="{{ $user->avatarUrl('100x100') }}" alt="Your avatar" class="h-12 w-12 rounded-full object-cover ring-2 ring-brand-200">
+            @else
+                <div class="avatar-circle">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+            @endif
             <div>
                 <h1 class="text-lg font-extrabold text-gray-900">Hi, {{ Str::before($user->name, ' ') }}!</h1>
                 <p class="text-xs text-gray-500">Manage your cats & bookings</p>
@@ -159,8 +163,22 @@
 
             {{-- Add pet form (collapsible) --}}
             <div x-show="showAddPet" x-collapse x-cloak>
-                <form method="POST" action="{{ route('pets.store') }}" class="space-y-3 rounded-2xl bg-white p-4 border border-gray-100">
+                <form method="POST" action="{{ route('pets.store') }}" enctype="multipart/form-data"
+                      x-data="{ preview: null }"
+                      class="space-y-3 rounded-2xl bg-white p-4 border border-gray-100">
                     @csrf
+                    <label class="relative flex items-center gap-3 cursor-pointer">
+                        <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-brand-100 text-2xl overflow-hidden">
+                            <template x-if="preview"><img :src="preview" class="h-full w-full object-cover"></template>
+                            <template x-if="!preview"><span>📷</span></template>
+                        </div>
+                        <div class="text-xs">
+                            <div class="font-bold text-gray-900">Add cat photo</div>
+                            <div class="text-gray-500">JPG/PNG up to 5 MB · optional</div>
+                        </div>
+                        <input name="image" type="file" accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                               @change="preview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : null">
+                    </label>
                     <div class="grid grid-cols-2 gap-3">
                         <input name="name" type="text" required class="input-mobile" placeholder="Pet name">
                         <input name="breed" type="text" class="input-mobile" placeholder="Breed">
@@ -185,7 +203,11 @@
                             <button @click="editingPet === '{{ $pet->id }}' ? editingPet = null : editingPet = '{{ $pet->id }}'"
                                     class="flex w-full items-center justify-between gap-3 p-4 text-left">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-100 text-lg flex-shrink-0">🐱</div>
+                                    @if ($pet->imageUrl())
+                                        <img src="{{ $pet->imageUrl('100x100') }}" alt="{{ $pet->name }}" class="h-10 w-10 rounded-xl object-cover flex-shrink-0">
+                                    @else
+                                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-100 text-lg flex-shrink-0">🐱</div>
+                                    @endif
                                     <div class="min-w-0">
                                         <h3 class="text-sm font-bold text-gray-900 truncate">{{ $pet->name }}</h3>
                                         <p class="text-xs text-gray-500 truncate">{{ $pet->breed ?: 'Breed not set' }} · {{ $pet->age ? $pet->age . 'y' : '' }} {{ $pet->weight ? '· ' . $pet->weight . 'kg' : '' }}</p>
@@ -200,9 +222,23 @@
 
                             {{-- Expandable edit form --}}
                             <div x-show="editingPet === '{{ $pet->id }}'" x-collapse x-cloak class="border-t border-gray-100 px-4 pb-4 pt-3">
-                                <form method="POST" action="{{ route('pets.update', $pet->id) }}" class="space-y-3">
+                                <form method="POST" action="{{ route('pets.update', $pet->id) }}" enctype="multipart/form-data"
+                                      x-data="{ preview: '{{ $pet->imageUrl() }}' }"
+                                      class="space-y-3">
                                     @csrf
                                     @method('PATCH')
+                                    <label class="relative flex items-center gap-3 cursor-pointer">
+                                        <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-brand-100 text-2xl overflow-hidden">
+                                            <template x-if="preview"><img :src="preview" class="h-full w-full object-cover"></template>
+                                            <template x-if="!preview"><span>🐱</span></template>
+                                        </div>
+                                        <div class="text-xs">
+                                            <div class="font-bold text-gray-900">Change cat photo</div>
+                                            <div class="text-gray-500">JPG/PNG up to 5 MB</div>
+                                        </div>
+                                        <input name="image" type="file" accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                                               @change="preview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : '{{ $pet->imageUrl() }}'">
+                                    </label>
                                     <div class="grid grid-cols-2 gap-3">
                                         <input name="name" type="text" value="{{ $pet->name }}" required class="input-mobile" placeholder="Name">
                                         <input name="breed" type="text" value="{{ $pet->breed }}" class="input-mobile" placeholder="Breed">
@@ -236,9 +272,23 @@
                 <h2 class="text-base font-bold text-gray-900">Profile Settings</h2>
                 <p class="mt-0.5 text-xs text-gray-500">Update your account details</p>
 
-                <form method="POST" action="{{ route('profile.update') }}" class="mt-5 space-y-4">
+                <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data"
+                      x-data="{ preview: '{{ $user->avatarUrl() }}' }"
+                      class="mt-5 space-y-4">
                     @csrf
                     @method('PATCH')
+                    <label class="relative flex items-center gap-4 cursor-pointer">
+                        <div class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 text-xl font-extrabold text-brand-700 overflow-hidden ring-2 ring-brand-200">
+                            <template x-if="preview"><img :src="preview" class="h-full w-full object-cover"></template>
+                            <template x-if="!preview"><span>{{ strtoupper(substr($user->name, 0, 1)) }}</span></template>
+                        </div>
+                        <div class="text-xs">
+                            <div class="font-bold text-gray-900">Profile photo</div>
+                            <div class="text-gray-500">Tap to {{ $user->avatar ? 'change' : 'upload' }} · JPG/PNG up to 5 MB</div>
+                        </div>
+                        <input name="avatar" type="file" accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                               @change="preview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : '{{ $user->avatarUrl() }}'">
+                    </label>
                     <div>
                         <label class="mb-1.5 block text-sm font-semibold text-gray-700">Name</label>
                         <input name="name" type="text" value="{{ old('name', $user->name) }}" required class="input-mobile">

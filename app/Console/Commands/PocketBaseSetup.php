@@ -95,7 +95,41 @@ class PocketBaseSetup extends Command
             return;
         }
 
-        $this->line("• Collection {$name} already exists");
+        $this->ensureMissingFields($name, $existing->json('fields') ?? [], $definition['fields'] ?? []);
+    }
+
+    private function ensureMissingFields(string $collection, array $currentFields, array $desiredFields): void
+    {
+        $currentByName = [];
+        foreach ($currentFields as $field) {
+            if (isset($field['name'])) {
+                $currentByName[$field['name']] = $field;
+            }
+        }
+
+        $missing = [];
+        foreach ($desiredFields as $field) {
+            if (! isset($field['name'])) {
+                continue;
+            }
+            if (! isset($currentByName[$field['name']])) {
+                $missing[] = $field;
+            }
+        }
+
+        if ($missing === []) {
+            $this->line("• Collection {$collection} already exists");
+            return;
+        }
+
+        $merged = array_merge($currentFields, $missing);
+        $res = $this->request('patch', "/api/collections/{$collection}", ['fields' => $merged]);
+        if ($res->successful()) {
+            $names = implode(', ', array_map(fn ($f) => $f['name'], $missing));
+            $this->info("✓ Added fields to {$collection}: {$names}");
+        } else {
+            $this->error("✗ Failed to patch {$collection}: ".$res->body());
+        }
     }
 
     private function seedServices(): void
@@ -193,6 +227,13 @@ class PocketBaseSetup extends Command
                     'type' => 'text',
                     'required' => true,
                     'max' => 255,
+                ],
+                [
+                    'name' => 'avatar',
+                    'type' => 'file',
+                    'maxSelect' => 1,
+                    'maxSize' => 5_242_880,
+                    'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
                 ],
             ],
         ];
