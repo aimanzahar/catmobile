@@ -14,6 +14,7 @@ use App\Services\PocketBase\PocketBaseClient;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class PetController extends Controller
@@ -36,7 +37,7 @@ class PetController extends Controller
 
     public function store(StorePetRequest $request, CreatePet $createPet): JsonResponse
     {
-        $pet = $createPet->handle($request->user(), $request->validated());
+        $pet = $createPet->handle($request->user(), $this->validatedWithNativeImage($request));
 
         return response()->json(new PetResource($pet), 201);
     }
@@ -45,7 +46,7 @@ class PetController extends Controller
     {
         $owned = $this->loadOwnedPet($request, $pet);
 
-        return new PetResource($updatePet->handle($request->user(), $owned, $request->validated()));
+        return new PetResource($updatePet->handle($request->user(), $owned, $this->validatedWithNativeImage($request)));
     }
 
     public function destroy(Request $request, string $pet): JsonResponse
@@ -73,5 +74,17 @@ class PetController extends Controller
         }
 
         return Pet::fromRecord($record);
+    }
+
+    private function validatedWithNativeImage(StorePetRequest|UpdatePetRequest $request): array
+    {
+        $attributes = $request->validated();
+        $image = $request->file('image') ?? $request->input('image');
+
+        if ($image instanceof UploadedFile) {
+            $attributes['image'] = $image;
+        }
+
+        return $attributes;
     }
 }

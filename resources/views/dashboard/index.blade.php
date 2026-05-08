@@ -181,7 +181,7 @@
                       class="space-y-3 rounded-2xl bg-white p-4 border border-gray-100">
                     @csrf
                     <label data-native-picker class="relative flex items-center gap-3 cursor-pointer"
-                           @native-picker-selected="preview = '/_native/local-file?path=' + encodeURIComponent($event.detail.path)">
+                           @native-picker-selected="preview = $event.detail.previewUrl">
                         <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-brand-100 text-2xl overflow-hidden">
                             <template x-if="preview"><img :src="preview" class="h-full w-full object-cover"></template>
                             <template x-if="!preview"><span>📷</span></template>
@@ -243,7 +243,7 @@
                                     @csrf
                                     @method('PATCH')
                                     <label data-native-picker class="relative flex items-center gap-3 cursor-pointer"
-                                           @native-picker-selected="preview = '/_native/local-file?path=' + encodeURIComponent($event.detail.path)">
+                                           @native-picker-selected="preview = $event.detail.previewUrl">
                                         <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-brand-100 text-2xl overflow-hidden">
                                             <template x-if="preview"><img :src="preview" class="h-full w-full object-cover"></template>
                                             <template x-if="!preview"><span>🐱</span></template>
@@ -295,7 +295,7 @@
                     @csrf
                     @method('PATCH')
                     <label data-native-picker class="relative flex items-center gap-4 cursor-pointer"
-                           @native-picker-selected="preview = '/_native/local-file?path=' + encodeURIComponent($event.detail.path)">
+                           @native-picker-selected="preview = $event.detail.previewUrl">
                         <div class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 text-xl font-extrabold text-brand-700 overflow-hidden ring-2 ring-brand-200">
                             <template x-if="preview"><img :src="preview" class="h-full w-full object-cover"></template>
                             <template x-if="!preview"><span>{{ strtoupper(substr($user->name, 0, 1)) }}</span></template>

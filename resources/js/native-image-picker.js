@@ -14,20 +14,79 @@ function isNativeAvailable() {
 const pendingByPickerId = new Map();
 let listenerInstalled = false;
 
+function normalizePayload(payload) {
+    if (Array.isArray(payload)) {
+        return { success: true, files: payload, count: payload.length };
+    }
+
+    if (typeof payload !== 'string') {
+        return payload;
+    }
+
+    try {
+        const parsed = JSON.parse(payload);
+        return Array.isArray(parsed) ? { success: true, files: parsed, count: parsed.length } : parsed;
+    } catch (error) {
+        ERR('failed to parse MediaSelected payload:', error);
+        return null;
+    }
+}
+
+function takePendingResolver(id) {
+    if (id && pendingByPickerId.has(id)) {
+        const resolver = pendingByPickerId.get(id);
+        pendingByPickerId.delete(id);
+        return resolver;
+    }
+
+    // NativePHP Android processes gallery results on a background thread. Some
+    // builds clear the pending gallery id before dispatching the success event,
+    // so the payload can arrive without `id`. Only one picker can be visible at
+    // a time, so safely fall back to the sole pending request.
+    if (!id && pendingByPickerId.size === 1) {
+        const [[fallbackId, resolver]] = pendingByPickerId.entries();
+        pendingByPickerId.delete(fallbackId);
+        LOG('MediaSelected had no id; using sole pending picker:', fallbackId);
+        return resolver;
+    }
+
+    return null;
+}
+
+function localFilePreviewUrl(file) {
+    const path = file?.previewDataUrl || file?.dataUrl || file?.previewUri || file?.uri || file?.contentUri || file?.path;
+    const normalizedPath = String(path || '').replace(/\\/g, '/');
+    if (!normalizedPath) return '';
+
+    if (/^[a-z][a-z0-9+.-]*:/i.test(normalizedPath) && !/^[a-z]:\//i.test(normalizedPath)) {
+        return normalizedPath;
+    }
+
+    return encodeURI(`file://${normalizedPath.startsWith('/') ? '' : '/'}${normalizedPath}`);
+}
+
 function installMediaSelectedListener() {
     if (listenerInstalled) return;
     listenerInstalled = true;
 
     On(Events.Gallery.MediaSelected, (payload) => {
+        payload = normalizePayload(payload);
         LOG('MediaSelected event:', payload);
 
-        const id = payload?.id;
-        const resolver = id ? pendingByPickerId.get(id) : null;
-        if (!resolver) {
-            ERR('received MediaSelected with unknown id:', id);
+        if (!payload || typeof payload !== 'object') {
+            const resolver = takePendingResolver(null);
+            if (resolver) {
+                resolver.reject(new Error('invalid picker payload'));
+            }
             return;
         }
-        pendingByPickerId.delete(id);
+
+        const id = payload?.id;
+        const resolver = takePendingResolver(id);
+        if (!resolver) {
+            ERR('received MediaSelected with unknown id:', id, 'pending:', pendingByPickerId.size);
+            return;
+        }
 
         if (!payload.success) {
             const reason = payload.cancelled ? 'cancelled' : (payload.error || 'unknown');
@@ -56,7 +115,7 @@ async function pickImageNative() {
 
     return new Promise((resolve, reject) => {
         pendingByPickerId.set(id, { resolve, reject });
-        Camera.pickImages().images().id(id).then(
+        Camera.pickImages().images().maxItems(1).id(id).then(
             () => LOG('Camera.pickImages bridge call dispatched, awaiting MediaSelected event'),
             (err) => {
                 ERR('Camera.pickImages bridge call failed:', err);
@@ -114,7 +173,7 @@ export function setupNativePicker(label) {
             }
 
             label.dispatchEvent(new CustomEvent('native-picker-selected', {
-                detail: { path: file.path, mimeType: file.mimeType },
+                detail: { path: file.path, previewUrl: localFilePreviewUrl(file), mimeType: file.mimeType },
                 bubbles: true,
             }));
         }).catch((err) => {

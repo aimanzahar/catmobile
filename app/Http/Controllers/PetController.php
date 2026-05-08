@@ -11,6 +11,7 @@ use App\Services\PocketBase\Exceptions\PocketBaseNotFoundException;
 use App\Services\PocketBase\PocketBaseClient;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class PetController extends Controller
@@ -24,7 +25,7 @@ class PetController extends Controller
 
     public function store(StorePetRequest $request, CreatePet $createPet): RedirectResponse
     {
-        $createPet->handle($request->user(), $request->validated());
+        $createPet->handle($request->user(), $this->validatedWithNativeImage($request));
 
         return redirect()->route('dashboard')
             ->with('status', 'Pet added successfully.');
@@ -33,7 +34,7 @@ class PetController extends Controller
     public function update(UpdatePetRequest $request, string $pet, UpdatePet $updatePet): RedirectResponse
     {
         $owned = $this->loadOwnedPet($request, $pet);
-        $updatePet->handle($request->user(), $owned, $request->validated());
+        $updatePet->handle($request->user(), $owned, $this->validatedWithNativeImage($request));
 
         return redirect()->route('dashboard')
             ->with('status', 'Pet updated successfully.');
@@ -63,5 +64,17 @@ class PetController extends Controller
         }
 
         return Pet::fromRecord($record);
+    }
+
+    private function validatedWithNativeImage(StorePetRequest|UpdatePetRequest $request): array
+    {
+        $attributes = $request->validated();
+        $image = $request->file('image') ?? $request->input('image');
+
+        if ($image instanceof UploadedFile) {
+            $attributes['image'] = $image;
+        }
+
+        return $attributes;
     }
 }

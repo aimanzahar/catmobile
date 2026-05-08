@@ -28,7 +28,7 @@ class UpdateProfileRequest extends FormRequest
         ];
     }
 
-    protected function passedValidation(): void
+    protected function prepareForValidation(): void
     {
         $native = NativeUploadedFileResolver::resolveFromRequest($this, 'avatar_native_path');
         if ($native !== null) {
@@ -37,6 +37,7 @@ class UpdateProfileRequest extends FormRequest
                 'size' => $native->getSize(),
             ]);
             $this->files->set('avatar', $native);
+            $this->convertedFiles = null;
             $this->merge(['avatar' => $native]);
         }
     }

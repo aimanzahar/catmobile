@@ -26,7 +26,7 @@ class StorePetRequest extends FormRequest
         ];
     }
 
-    protected function passedValidation(): void
+    protected function prepareForValidation(): void
     {
         $native = NativeUploadedFileResolver::resolveFromRequest($this, 'image_native_path');
         if ($native !== null) {
@@ -35,6 +35,7 @@ class StorePetRequest extends FormRequest
                 'size' => $native->getSize(),
             ]);
             $this->files->set('image', $native);
+            $this->convertedFiles = null;
             $this->merge(['image' => $native]);
         }
     }
