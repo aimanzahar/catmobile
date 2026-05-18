@@ -6,6 +6,7 @@ use App\Services\PocketBase\Exceptions\PocketBaseAuthException;
 use App\Services\PocketBase\Exceptions\PocketBaseException;
 use App\Services\PocketBase\Exceptions\PocketBaseNotFoundException;
 use App\Services\PocketBase\Exceptions\PocketBaseValidationException;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\UploadedFile;
@@ -207,7 +208,10 @@ class PocketBaseClient
 
     private function client(?string $token = null): PendingRequest
     {
-        $request = Http::timeout($this->timeout)->acceptJson();
+        $request = Http::timeout($this->timeout)
+            ->connectTimeout(min($this->timeout, 10))
+            ->retry(2, 500, static fn ($exception) => $exception instanceof ConnectionException)
+            ->acceptJson();
 
         if ($token !== null) {
             $request = $request->withHeaders(['Authorization' => $token]);
