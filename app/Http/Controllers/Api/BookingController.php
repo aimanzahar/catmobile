@@ -40,7 +40,12 @@ class BookingController extends Controller
     public function store(StoreBookingRequest $request, CreateBooking $createBooking): JsonResponse
     {
         $service = $this->findServiceBySlug((string) $request->validated('service_slug'));
-        $booking = $createBooking->handle($request->user(), $service, $request->validated());
+
+        $payload = array_merge($request->validated(), [
+            'new_pet_image' => $request->file('new_pet_image'),
+        ]);
+
+        $booking = $createBooking->handle($request->user(), $service, $payload);
 
         return response()->json(new BookingResource($booking), 201);
     }

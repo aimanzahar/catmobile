@@ -3,9 +3,11 @@
 namespace App\Providers;
 
 use App\Auth\PocketBaseGuard;
+use App\Listeners\StoreDeviceToken;
 use App\Services\PocketBase\PocketBaseClient;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -36,5 +38,19 @@ class AppServiceProvider extends ServiceProvider
                 'token',
             );
         });
+
+        if (class_exists(\Native\Mobile\Events\PushNotification\TokenGenerated::class)) {
+            Event::listen(
+                \Native\Mobile\Events\PushNotification\TokenGenerated::class,
+                StoreDeviceToken::class,
+            );
+        }
+
+        if (class_exists(\App\Events\PushTokenGenerated::class)) {
+            Event::listen(
+                \App\Events\PushTokenGenerated::class,
+                StoreDeviceToken::class,
+            );
+        }
     }
 }

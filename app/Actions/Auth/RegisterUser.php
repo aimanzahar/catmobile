@@ -27,6 +27,7 @@ class RegisterUser
                 'passwordConfirm' => $attributes['password'],
                 'name' => $attributes['name'],
                 'emailVisibility' => true,
+                'role' => 'customer',
             ]);
         } catch (PocketBaseValidationException $exception) {
             $errors = $this->translateErrors($exception->errors());

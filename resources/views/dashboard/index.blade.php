@@ -53,6 +53,53 @@
              ════════════════════════════════════════════ --}}
         <div x-show="tab === 'overview'" x-cloak class="space-y-5">
 
+            {{-- Unread notification banners --}}
+            @if (! empty($unread_notifications) && $unread_notifications->isNotEmpty())
+                <div class="space-y-2">
+                    @foreach ($unread_notifications as $n)
+                        @php
+                            $accent = match ($n->type) {
+                                'booking_completed' => 'border-l-4 border-green-400 bg-green-50',
+                                'booking_in_progress' => 'border-l-4 border-purple-400 bg-purple-50',
+                                'booking_confirmed' => 'border-l-4 border-blue-400 bg-blue-50',
+                                'chat_message' => 'border-l-4 border-brand-400 bg-brand-50',
+                                'booking_cancelled' => 'border-l-4 border-gray-400 bg-gray-50',
+                                default => 'border-l-4 border-gray-300 bg-white',
+                            };
+                            $emoji = match ($n->type) {
+                                'booking_completed' => '🎉',
+                                'booking_in_progress' => '✂️',
+                                'chat_message' => '💬',
+                                'booking_cancelled' => '✕',
+                                default => '🔔',
+                            };
+                        @endphp
+                        <div class="flex items-start gap-3 rounded-2xl px-4 py-3 {{ $accent }}">
+                            <span class="text-lg flex-shrink-0">{{ $emoji }}</span>
+                            <div class="min-w-0 flex-1">
+                                <div class="text-sm font-bold text-gray-900">{{ $n->title }}</div>
+                                @if ($n->body)
+                                    <div class="mt-0.5 text-xs text-gray-600 line-clamp-2">{{ $n->body }}</div>
+                                @endif
+                                <div class="mt-2 flex items-center gap-3">
+                                    @if ($n->link)
+                                        <form method="POST" action="{{ route('notifications.read', $n->id) }}">
+                                            @csrf
+                                            <button type="submit" class="text-xs font-bold text-brand-600">View →</button>
+                                        </form>
+                                    @endif
+                                    <form method="POST" action="{{ route('notifications.read', $n->id) }}">
+                                        @csrf
+                                        <input type="hidden" name="dismiss" value="1">
+                                        <button type="submit" class="text-xs text-gray-400">Dismiss</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
             {{-- Book a grooming CTA --}}
             <a href="{{ route('bookings.index') }}"
                class="flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-brand-500 to-brand-600 p-4 text-white shadow-md active:scale-[0.99] transition-transform">

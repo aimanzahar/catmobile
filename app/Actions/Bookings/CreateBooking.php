@@ -135,13 +135,21 @@ class CreateBooking
             throw ValidationException::withMessages(['pet_id' => 'Please choose a pet or add a new one.']);
         }
 
-        $created = $this->client->createRecord('cg_pets', array_filter([
+        $petData = array_filter([
             'user' => $user->id,
             'name' => $newPetName,
             'breed' => $payload['new_pet_breed'] ?? null,
             'age' => isset($payload['new_pet_age']) && $payload['new_pet_age'] !== '' ? (int) $payload['new_pet_age'] : null,
             'special_notes' => $payload['new_pet_notes'] ?? null,
-        ], static fn ($v) => $v !== null && $v !== ''), $user->pocketbase_token);
+        ], static fn ($v) => $v !== null && $v !== '');
+
+        $files = [];
+        $image = $payload['new_pet_image'] ?? null;
+        if ($image instanceof \Illuminate\Http\UploadedFile) {
+            $files['image'] = $image;
+        }
+
+        $created = $this->client->createRecord('cg_pets', $petData, $user->pocketbase_token, $files);
 
         return (string) $created['id'];
     }

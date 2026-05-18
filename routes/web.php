@@ -1,13 +1,17 @@
 <?php
 
+use App\Http\Controllers\Admin;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\NativeFileController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PetController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PushEnrollmentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'index'])->name('landing');
@@ -44,4 +48,29 @@ Route::middleware('auth')->group(function () {
     Route::get('/book/{booking}/payment/cancel', [BookingController::class, 'cancelPayment'])->name('bookings.payment.cancel');
     Route::get('/book/{booking}/confirmation', [BookingController::class, 'confirmation'])->name('bookings.confirmation');
     Route::get('/book/{booking}', [BookingController::class, 'show'])->name('bookings.show');
+
+    Route::get('/chat', [ChatController::class, 'show'])->name('chat.show');
+    Route::get('/chat/messages', [ChatController::class, 'messages'])->name('chat.messages');
+    Route::post('/chat/messages', [ChatController::class, 'send'])->name('chat.send');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.readAll');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
+
+    Route::post('/native/push/enroll', [PushEnrollmentController::class, 'enroll'])->name('native.push.enroll');
+    Route::post('/native/push/token', [PushEnrollmentController::class, 'storeToken'])->name('native.push.token');
+});
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [Admin\DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/bookings', [Admin\BookingController::class, 'index'])->name('bookings.index');
+    Route::get('/bookings/{booking}', [Admin\BookingController::class, 'show'])->name('bookings.show');
+    Route::patch('/bookings/{booking}/status', [Admin\BookingController::class, 'updateStatus'])->name('bookings.status');
+
+    Route::get('/chats', [Admin\ChatController::class, 'index'])->name('chats.index');
+    Route::get('/chats/{chat}', [Admin\ChatController::class, 'show'])->name('chats.show');
+    Route::get('/chats/{chat}/messages', [Admin\ChatController::class, 'messages'])->name('chats.messages');
+    Route::post('/chats/{chat}/messages', [Admin\ChatController::class, 'send'])->name('chats.send');
 });

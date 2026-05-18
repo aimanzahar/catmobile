@@ -37,7 +37,9 @@ class SessionController extends Controller
         // yet we want the login() call above to survive regeneration.
         $request->session()->put(PocketBaseGuard::SESSION_TOKEN_KEY, $result['token']);
 
-        return redirect()->intended(route('dashboard'));
+        $defaultRoute = $result['user']->isAdmin() ? route('admin.dashboard') : route('dashboard');
+
+        return redirect()->intended($defaultRoute);
     }
 
     public function destroy(Request $request): RedirectResponse

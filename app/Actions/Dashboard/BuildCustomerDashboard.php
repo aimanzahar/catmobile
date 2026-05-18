@@ -3,6 +3,7 @@
 namespace App\Actions\Dashboard;
 
 use App\Models\Booking;
+use App\Models\Notification;
 use App\Models\Pet;
 use App\Models\User;
 use App\Services\PocketBase\PocketBaseClient;
@@ -52,12 +53,33 @@ class BuildCustomerDashboard
             ->sortByDesc(fn (Booking $booking) => $this->slotStartsAt($booking)?->timestamp ?? 0)
             ->values();
 
+        $unreadNotifications = $this->fetchUnreadNotifications($user);
+
         return [
             'user' => $user,
             'pets' => $pets,
             'upcoming_bookings' => $upcoming,
             'booking_history' => $history,
+            'unread_notifications' => $unreadNotifications,
         ];
+    }
+
+    private function fetchUnreadNotifications(User $user): Collection
+    {
+        try {
+            $superToken = $this->client->superuserToken();
+            $resp = $this->client->listRecords('cg_notifications', $superToken, [
+                'filter' => "user='{$user->id}' && read_at=''",
+                'sort' => '-id',
+                'perPage' => 3,
+            ]);
+
+            return collect($resp['items'] ?? [])
+                ->map(fn (array $r) => Notification::fromRecord($r))
+                ->values();
+        } catch (\Throwable) {
+            return collect();
+        }
     }
 
     private function isUpcoming(Booking $booking, CarbonInterface $now): bool

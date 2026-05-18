@@ -275,3 +275,191 @@ html {
     min-height: calc(100dvh - 4rem);
     padding: 2rem 1.5rem;
 }
+
+/* ── Chat screen — fixed viewport, sits between header and tab bar ── */
+.chat-screen {
+    position: fixed;
+    top: calc(max(1.75rem, env(safe-area-inset-top, 1.75rem)) + 2.75rem);
+    left: 0;
+    right: 0;
+    bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    flex-direction: column;
+    background: var(--color-warm-50);
+    z-index: 30;
+}
+
+.chat-screen-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.chat-screen-header-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    color: #6B7280;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.chat-screen-header-back:active {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.chat-screen-header-avatar {
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, var(--color-brand-500), var(--color-accent-500));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 800;
+    font-size: 0.875rem;
+}
+
+.chat-screen-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.625rem 0.625rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.chat-bubble {
+    max-width: 78%;
+    padding: 0.4375rem 0.6875rem;
+    font-size: 0.875rem;
+    line-height: 1.35;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.chat-bubble-mine {
+    align-self: flex-end;
+    background: var(--color-brand-500);
+    color: white;
+    border-radius: 1rem 1rem 0.25rem 1rem;
+}
+
+.chat-bubble-mine--head {
+    border-top-right-radius: 1rem;
+}
+
+.chat-bubble-theirs {
+    align-self: flex-start;
+    background: white;
+    color: #1F2937;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 1rem 1rem 1rem 0.25rem;
+}
+
+.chat-bubble-theirs--head {
+    border-top-left-radius: 1rem;
+}
+
+.chat-bubble-time {
+    display: block;
+    font-size: 0.625rem;
+    opacity: 0.7;
+    margin-top: 0.125rem;
+    text-align: right;
+}
+
+.chat-day-divider {
+    align-self: center;
+    margin: 0.625rem 0 0.375rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+    color: #9CA3AF;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 0.1875rem 0.625rem;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.chat-screen-composer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    padding: 0.5rem 0.625rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.chat-screen-composer-input {
+    flex: 1;
+    min-height: 2.25rem;
+    max-height: 7rem;
+    border: 1px solid #E5E7EB;
+    background: white;
+    border-radius: 1.125rem;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.9375rem;
+    line-height: 1.3;
+    outline: none;
+    resize: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.chat-screen-composer-input:focus {
+    border-color: var(--color-brand-400);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+}
+
+.chat-screen-composer-send {
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 9999px;
+    background: var(--color-brand-500);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(249, 115, 22, 0.3);
+    transition: transform 0.1s, opacity 0.15s;
+}
+
+.chat-screen-composer-send:disabled {
+    background: #D1D5DB;
+    box-shadow: none;
+}
+
+.chat-screen-composer-send:not(:disabled):active {
+    transform: scale(0.95);
+}
+
+.chat-empty-state {
+    margin: auto;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    color: #9CA3AF;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+}
+
+/* When a chat page is active, drop the main padding (chat is fixed-positioned) */
+main:has(.chat-screen) {
+    padding: 0 !important;
+}

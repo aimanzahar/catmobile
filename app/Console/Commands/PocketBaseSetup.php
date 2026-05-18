@@ -10,7 +10,7 @@ class PocketBaseSetup extends Command
 {
     protected $signature = 'pocketbase:setup {--force-recreate : Delete and recreate all cg_ collections}';
 
-    protected $description = 'Provision PocketBase collections (cg_users, cg_pets, cg_services, cg_time_slots, cg_bookings, cg_taxi_requests) and seed services.';
+    protected $description = 'Provision PocketBase collections (cg_users, cg_pets, cg_services, cg_time_slots, cg_bookings, cg_taxi_requests, cg_chats, cg_messages, cg_notifications, cg_device_tokens), seed services, and seed an admin user.';
 
     private string $url;
 
@@ -53,8 +53,13 @@ class PocketBaseSetup extends Command
         $this->upsertCollection($this->petsCollection());
         $this->upsertCollection($this->bookingsCollection());
         $this->upsertCollection($this->taxiRequestsCollection());
+        $this->upsertCollection($this->chatsCollection());
+        $this->upsertCollection($this->messagesCollection());
+        $this->upsertCollection($this->notificationsCollection());
+        $this->upsertCollection($this->deviceTokensCollection());
 
         $this->seedServices();
+        $this->seedAdminUser();
 
         $this->info('');
         $this->info('All done.');
@@ -64,7 +69,10 @@ class PocketBaseSetup extends Command
 
     private function deleteExisting(): void
     {
-        $names = ['cg_taxi_requests', 'cg_bookings', 'cg_time_slots', 'cg_services', 'cg_pets', 'cg_users'];
+        $names = [
+            'cg_device_tokens', 'cg_notifications', 'cg_messages', 'cg_chats',
+            'cg_taxi_requests', 'cg_bookings', 'cg_time_slots', 'cg_services', 'cg_pets', 'cg_users',
+        ];
         foreach ($names as $name) {
             $res = $this->request('delete', "/api/collections/{$name}");
             if ($res->status() === 204) {
@@ -95,7 +103,9 @@ class PocketBaseSetup extends Command
             return;
         }
 
-        $this->ensureMissingFields($name, $existing->json('fields') ?? [], $definition['fields'] ?? []);
+        $current = $existing->json();
+        $this->ensureMissingFields($name, $current['fields'] ?? [], $definition['fields'] ?? []);
+        $this->ensureRules($name, $current, $definition);
     }
 
     private function ensureMissingFields(string $collection, array $currentFields, array $desiredFields): void
@@ -118,7 +128,8 @@ class PocketBaseSetup extends Command
         }
 
         if ($missing === []) {
-            $this->line("• Collection {$collection} already exists");
+            $this->line("• Collection {$collection} fields up to date");
+
             return;
         }
 
@@ -129,6 +140,40 @@ class PocketBaseSetup extends Command
             $this->info("✓ Added fields to {$collection}: {$names}");
         } else {
             $this->error("✗ Failed to patch {$collection}: ".$res->body());
+        }
+    }
+
+    private function ensureRules(string $collection, array $current, array $desired): void
+    {
+        $ruleKeys = ['listRule', 'viewRule', 'createRule', 'updateRule', 'deleteRule'];
+        $patch = [];
+
+        foreach ($ruleKeys as $key) {
+            if (! array_key_exists($key, $desired)) {
+                continue;
+            }
+
+            $currentValue = $current[$key] ?? null;
+            $desiredValue = $desired[$key];
+
+            $currentNorm = $currentValue === '' ? '' : ($currentValue === null ? null : (string) $currentValue);
+            $desiredNorm = $desiredValue === '' ? '' : ($desiredValue === null ? null : (string) $desiredValue);
+
+            if ($currentNorm !== $desiredNorm) {
+                $patch[$key] = $desiredValue;
+            }
+        }
+
+        if ($patch === []) {
+            return;
+        }
+
+        $res = $this->request('patch', "/api/collections/{$collection}", $patch);
+        if ($res->successful()) {
+            $keys = implode(', ', array_keys($patch));
+            $this->info("✓ Updated rules on {$collection}: {$keys}");
+        } else {
+            $this->error("✗ Failed to update rules on {$collection}: ".$res->body());
         }
     }
 
@@ -197,6 +242,66 @@ class PocketBaseSetup extends Command
         }
     }
 
+    private function seedAdminUser(): void
+    {
+        $email = (string) env('ADMIN_EMAIL', 'admin@purrfectcat.local');
+        $password = (string) env('ADMIN_PASSWORD', 'PurrfectAdmin2026!');
+        $name = (string) env('ADMIN_NAME', 'Shop Admin');
+
+        if ($email === '' || $password === '') {
+            $this->warn('• Skipping admin seed (ADMIN_EMAIL or ADMIN_PASSWORD not set)');
+            return;
+        }
+
+        $this->info('');
+        $this->info('Seeding admin user...');
+
+        $existing = $this->request('get', '/api/collections/cg_users/records?filter='.urlencode("email='{$email}'"));
+
+        if ($existing->successful() && ($existing->json('totalItems') ?? 0) > 0) {
+            $record = $existing->json('items.0');
+            $currentRole = $record['role'] ?? null;
+
+            if ($currentRole === 'admin') {
+                $this->line("• Admin user {$email} already exists with role=admin");
+            } else {
+                $patch = $this->request('patch', "/api/collections/cg_users/records/{$record['id']}", [
+                    'role' => 'admin',
+                ]);
+                if ($patch->successful()) {
+                    $this->info("✓ Promoted existing user {$email} to admin");
+                } else {
+                    $this->error("✗ Failed to promote {$email}: ".$patch->body());
+                    return;
+                }
+            }
+        } else {
+            $res = $this->request('post', '/api/collections/cg_users/records', [
+                'email' => $email,
+                'password' => $password,
+                'passwordConfirm' => $password,
+                'name' => $name,
+                'role' => 'admin',
+                'verified' => true,
+                'emailVisibility' => true,
+            ]);
+            if ($res->successful()) {
+                $this->info("✓ Created admin user {$email}");
+            } else {
+                $this->error("✗ Failed to create admin user: ".$res->body());
+                return;
+            }
+        }
+
+        $this->info('');
+        $this->info('=================================================');
+        $this->info('  ADMIN LOGIN CREDENTIALS');
+        $this->info('  Email:    '.$email);
+        $this->info('  Password: '.$password);
+        $this->info('=================================================');
+        $this->warn('  Change ADMIN_PASSWORD in .env for production.');
+    }
+
     private function request(string $method, string $path, array $body = []): Response
     {
         $req = Http::timeout((int) config('pocketbase.timeout', 15))
@@ -235,6 +340,12 @@ class PocketBaseSetup extends Command
                     'maxSize' => 5_242_880,
                     'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
                 ],
+                [
+                    'name' => 'role',
+                    'type' => 'select',
+                    'maxSelect' => 1,
+                    'values' => ['customer', 'admin'],
+                ],
             ],
         ];
     }
@@ -244,8 +355,8 @@ class PocketBaseSetup extends Command
         return [
             'name' => 'cg_pets',
             'type' => 'base',
-            'listRule' => 'user = @request.auth.id',
-            'viewRule' => 'user = @request.auth.id',
+            'listRule' => 'user = @request.auth.id || @request.auth.role = "admin"',
+            'viewRule' => 'user = @request.auth.id || @request.auth.role = "admin"',
             'createRule' => 'user = @request.auth.id',
             'updateRule' => 'user = @request.auth.id',
             'deleteRule' => 'user = @request.auth.id',
@@ -323,10 +434,10 @@ class PocketBaseSetup extends Command
         return [
             'name' => 'cg_bookings',
             'type' => 'base',
-            'listRule' => 'user = @request.auth.id',
-            'viewRule' => 'user = @request.auth.id',
+            'listRule' => 'user = @request.auth.id || @request.auth.role = "admin"',
+            'viewRule' => 'user = @request.auth.id || @request.auth.role = "admin"',
             'createRule' => 'user = @request.auth.id',
-            'updateRule' => 'user = @request.auth.id',
+            'updateRule' => 'user = @request.auth.id || @request.auth.role = "admin"',
             'deleteRule' => 'user = @request.auth.id',
             'fields' => [
                 ['name' => 'user', 'type' => 'relation', 'required' => true, 'collectionId' => $this->collectionId('cg_users'), 'cascadeDelete' => true, 'maxSelect' => 1],
@@ -347,16 +458,110 @@ class PocketBaseSetup extends Command
         return [
             'name' => 'cg_taxi_requests',
             'type' => 'base',
-            'listRule' => 'booking.user = @request.auth.id',
-            'viewRule' => 'booking.user = @request.auth.id',
+            'listRule' => 'booking.user = @request.auth.id || @request.auth.role = "admin"',
+            'viewRule' => 'booking.user = @request.auth.id || @request.auth.role = "admin"',
             'createRule' => 'booking.user = @request.auth.id',
-            'updateRule' => 'booking.user = @request.auth.id',
+            'updateRule' => 'booking.user = @request.auth.id || @request.auth.role = "admin"',
             'deleteRule' => 'booking.user = @request.auth.id',
             'fields' => [
                 ['name' => 'booking', 'type' => 'relation', 'required' => true, 'collectionId' => $this->collectionId('cg_bookings'), 'cascadeDelete' => true, 'maxSelect' => 1],
                 ['name' => 'pickup_address', 'type' => 'text', 'required' => true],
                 ['name' => 'status', 'type' => 'select', 'maxSelect' => 1, 'values' => ['pending', 'approved', 'rejected', 'scheduled', 'completed']],
                 ['name' => 'scheduled_at', 'type' => 'date'],
+            ],
+        ];
+    }
+
+    private function chatsCollection(): array
+    {
+        return [
+            'name' => 'cg_chats',
+            'type' => 'base',
+            'listRule' => 'user = @request.auth.id || @request.auth.role = "admin"',
+            'viewRule' => 'user = @request.auth.id || @request.auth.role = "admin"',
+            'createRule' => 'user = @request.auth.id',
+            'updateRule' => 'user = @request.auth.id || @request.auth.role = "admin"',
+            'deleteRule' => null,
+            'fields' => [
+                ['name' => 'user', 'type' => 'relation', 'required' => true, 'collectionId' => $this->collectionId('cg_users'), 'cascadeDelete' => true, 'maxSelect' => 1],
+                ['name' => 'last_message_at', 'type' => 'date'],
+                ['name' => 'last_message_preview', 'type' => 'text', 'max' => 255],
+                ['name' => 'unread_for_customer', 'type' => 'number'],
+                ['name' => 'unread_for_admin', 'type' => 'number'],
+            ],
+            'indexes' => [
+                'CREATE UNIQUE INDEX `idx_cg_chats_user` ON `cg_chats` (`user`)',
+            ],
+        ];
+    }
+
+    private function messagesCollection(): array
+    {
+        return [
+            'name' => 'cg_messages',
+            'type' => 'base',
+            'listRule' => 'chat.user = @request.auth.id || @request.auth.role = "admin"',
+            'viewRule' => 'chat.user = @request.auth.id || @request.auth.role = "admin"',
+            'createRule' => 'chat.user = @request.auth.id || @request.auth.role = "admin"',
+            'updateRule' => null,
+            'deleteRule' => null,
+            'fields' => [
+                ['name' => 'chat', 'type' => 'relation', 'required' => true, 'collectionId' => $this->collectionId('cg_chats'), 'cascadeDelete' => true, 'maxSelect' => 1],
+                ['name' => 'sender', 'type' => 'relation', 'required' => true, 'collectionId' => $this->collectionId('cg_users'), 'cascadeDelete' => false, 'maxSelect' => 1],
+                ['name' => 'sender_role', 'type' => 'select', 'maxSelect' => 1, 'values' => ['customer', 'admin']],
+                ['name' => 'body', 'type' => 'text', 'required' => true, 'max' => 2000],
+                ['name' => 'read_by_customer', 'type' => 'bool'],
+                ['name' => 'read_by_admin', 'type' => 'bool'],
+            ],
+            'indexes' => [
+                'CREATE INDEX `idx_cg_messages_chat` ON `cg_messages` (`chat`)',
+            ],
+        ];
+    }
+
+    private function notificationsCollection(): array
+    {
+        return [
+            'name' => 'cg_notifications',
+            'type' => 'base',
+            'listRule' => 'user = @request.auth.id',
+            'viewRule' => 'user = @request.auth.id',
+            'createRule' => null,
+            'updateRule' => 'user = @request.auth.id',
+            'deleteRule' => 'user = @request.auth.id',
+            'fields' => [
+                ['name' => 'user', 'type' => 'relation', 'required' => true, 'collectionId' => $this->collectionId('cg_users'), 'cascadeDelete' => true, 'maxSelect' => 1],
+                ['name' => 'type', 'type' => 'select', 'maxSelect' => 1, 'values' => ['booking_confirmed', 'booking_in_progress', 'booking_completed', 'booking_cancelled', 'chat_message']],
+                ['name' => 'title', 'type' => 'text', 'required' => true, 'max' => 255],
+                ['name' => 'body', 'type' => 'text', 'max' => 1000],
+                ['name' => 'link', 'type' => 'text', 'max' => 500],
+                ['name' => 'related_id', 'type' => 'text', 'max' => 255],
+                ['name' => 'read_at', 'type' => 'date'],
+            ],
+            'indexes' => [
+                'CREATE INDEX `idx_cg_notifications_user` ON `cg_notifications` (`user`)',
+            ],
+        ];
+    }
+
+    private function deviceTokensCollection(): array
+    {
+        return [
+            'name' => 'cg_device_tokens',
+            'type' => 'base',
+            'listRule' => 'user = @request.auth.id',
+            'viewRule' => 'user = @request.auth.id',
+            'createRule' => 'user = @request.auth.id',
+            'updateRule' => 'user = @request.auth.id',
+            'deleteRule' => 'user = @request.auth.id',
+            'fields' => [
+                ['name' => 'user', 'type' => 'relation', 'required' => true, 'collectionId' => $this->collectionId('cg_users'), 'cascadeDelete' => true, 'maxSelect' => 1],
+                ['name' => 'token', 'type' => 'text', 'required' => true, 'max' => 500],
+                ['name' => 'platform', 'type' => 'select', 'maxSelect' => 1, 'values' => ['android', 'ios']],
+                ['name' => 'last_seen_at', 'type' => 'date'],
+            ],
+            'indexes' => [
+                'CREATE UNIQUE INDEX `idx_cg_device_tokens_token` ON `cg_device_tokens` (`token`)',
             ],
         ];
     }

@@ -21,7 +21,8 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('bookings.store') }}" class="space-y-5">
+        <form method="POST" action="{{ route('bookings.store') }}" enctype="multipart/form-data" class="space-y-5"
+              x-data="{ newPetPreview: null }">
             @csrf
             <input type="hidden" name="service_slug" value="{{ $service->slug }}">
 
@@ -54,6 +55,20 @@
                     <div class="mt-4 rounded-xl bg-brand-50 border border-brand-100 px-4 py-3 text-xs text-brand-700">
                         You haven't added any cats yet. Add one below — we'll save it to your profile.
                     </div>
+                    <label data-native-picker class="relative mt-3 flex items-center gap-3 cursor-pointer rounded-2xl border border-dashed border-gray-200 px-3 py-3"
+                           @native-picker-selected="newPetPreview = $event.detail.previewUrl">
+                        <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-brand-100 text-2xl overflow-hidden">
+                            <template x-if="newPetPreview"><img :src="newPetPreview" class="h-full w-full object-cover"></template>
+                            <template x-if="!newPetPreview"><span>📷</span></template>
+                        </div>
+                        <div class="text-xs">
+                            <div class="font-bold text-gray-900">Add cat photo</div>
+                            <div class="text-gray-500">JPG/PNG up to 5 MB · optional</div>
+                        </div>
+                        <input name="new_pet_image" type="file" accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                               @change="newPetPreview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : null">
+                        <input type="hidden" name="new_pet_image_native_path" data-native-path>
+                    </label>
                     <div class="mt-3 grid grid-cols-2 gap-3">
                         <input name="new_pet_name" type="text" required value="{{ old('new_pet_name') }}" class="input-mobile" placeholder="Cat's name">
                         <input name="new_pet_breed" type="text" value="{{ old('new_pet_breed') }}" class="input-mobile" placeholder="Breed (optional)">

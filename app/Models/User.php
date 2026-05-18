@@ -18,12 +18,16 @@ class User implements Authenticatable
         public readonly ?string $created = null,
         public readonly ?string $updated = null,
         public readonly ?string $avatar = null,
+        public readonly string $role = 'customer',
     ) {}
 
     public static function fromRecord(array $record, ?string $token = null): self
     {
         $rawAvatar = $record['avatar'] ?? null;
         $avatar = is_string($rawAvatar) && $rawAvatar !== '' ? $rawAvatar : null;
+
+        $rawRole = $record['role'] ?? 'customer';
+        $role = in_array($rawRole, ['customer', 'admin'], true) ? $rawRole : 'customer';
 
         $user = new self(
             id: (string) ($record['id'] ?? ''),
@@ -33,10 +37,16 @@ class User implements Authenticatable
             created: isset($record['created']) ? (string) $record['created'] : null,
             updated: isset($record['updated']) ? (string) $record['updated'] : null,
             avatar: $avatar,
+            role: $role,
         );
         $user->pocketbase_token = $token;
 
         return $user;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
     }
 
     public function avatarUrl(?string $thumb = '100x100'): ?string

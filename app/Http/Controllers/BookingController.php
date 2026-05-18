@@ -51,7 +51,11 @@ class BookingController extends Controller
     {
         $service = $this->findServiceBySlug((string) $request->validated('service_slug'));
 
-        $booking = $createBooking->handle($request->user(), $service, $request->validated());
+        $payload = array_merge($request->validated(), [
+            'new_pet_image' => $request->file('new_pet_image'),
+        ]);
+
+        $booking = $createBooking->handle($request->user(), $service, $payload);
 
         return redirect()->route('bookings.payment', $booking->id);
     }

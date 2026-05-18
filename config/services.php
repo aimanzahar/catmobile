@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'fcm' => [
+        'credentials_path' => env('FIREBASE_CREDENTIALS', 'storage/app/fcm-service-account.json'),
+    ],
+
 ];

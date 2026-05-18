@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+
 class Booking
 {
     public function __construct(
@@ -15,6 +17,10 @@ class Booking
         public readonly ?Service $service = null,
         public readonly ?TimeSlot $timeSlot = null,
         public readonly ?TaxiRequest $taxiRequest = null,
+        public readonly ?string $userId = null,
+        public readonly ?string $userName = null,
+        public readonly ?string $userEmail = null,
+        public readonly ?Carbon $created = null,
     ) {}
 
     public static function fromRecord(array $record): self
@@ -30,6 +36,13 @@ class Booking
             $taxiRequest = TaxiRequest::fromRecord($taxi[0]);
         }
 
+        $userExpand = $expand['user'] ?? null;
+        $userId = is_array($userExpand) ? (string) ($userExpand['id'] ?? '') : (string) ($record['user'] ?? '');
+        $userName = is_array($userExpand) ? ($userExpand['name'] ?? null) : null;
+        $userEmail = is_array($userExpand) ? ($userExpand['email'] ?? null) : null;
+
+        $created = isset($record['created']) && $record['created'] !== '' ? Carbon::parse($record['created']) : null;
+
         return new self(
             id: (string) ($record['id'] ?? ''),
             status: (string) ($record['status'] ?? 'pending'),
@@ -41,6 +54,10 @@ class Booking
             service: $service,
             timeSlot: $timeSlot,
             taxiRequest: $taxiRequest,
+            userId: $userId !== '' ? $userId : null,
+            userName: $userName,
+            userEmail: $userEmail,
+            created: $created,
         );
     }
 }
