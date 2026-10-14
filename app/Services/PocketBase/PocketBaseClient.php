@@ -210,7 +210,7 @@ class PocketBaseClient
     {
         $request = Http::timeout($this->timeout)
             ->connectTimeout(min($this->timeout, 10))
-            ->retry(2, 500, static fn ($exception) => $exception instanceof ConnectionException)
+            ->retry(2, 500, static fn ($exception) => $exception instanceof ConnectionException, throw: false)
             ->acceptJson();
 
         if ($token !== null) {
