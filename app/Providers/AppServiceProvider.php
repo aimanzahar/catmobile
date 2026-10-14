@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Auth\PocketBaseGuard;
 use App\Listeners\StoreDeviceToken;
 use App\Services\PocketBase\PocketBaseClient;
+use Illuminate\Foundation\Console\ServeCommand;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
@@ -20,6 +21,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         JsonResource::withoutWrapping();
+
+        // Windows names it "SystemRoot"; `artisan serve` matches case-sensitively and strips it, breaking socket binds.
+        ServeCommand::$passthroughVariables[] = 'SystemRoot';
 
         Auth::extend('pocketbase-session', function ($app) {
             return new PocketBaseGuard(
