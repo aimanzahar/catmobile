@@ -11,7 +11,7 @@
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800" rel="stylesheet" media="print" onload="this.media='all'" />
 
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -35,7 +35,7 @@
             <div class="flex items-center justify-between h-14">
                 {{-- Logo --}}
                 <a href="#" class="flex items-center gap-2">
-                    <img src="{{ asset('images/logo.jpeg') }}" alt="PurrfectCat Groom" class="h-8 w-8 rounded-md object-cover">
+                    <img src="{{ asset('images/purrfect-cat-groom.gif') }}" alt="PurrfectCat Groom" class="h-8 w-8 rounded-md object-cover">
                     <span class="text-lg font-bold text-brand-700">PurrfectCat Groom</span>
                 </a>
 
@@ -124,7 +124,7 @@
             {{-- Brand Illustration --}}
             <div class="mb-6 animate-fade-in-up">
                 <div class="inline-flex items-center justify-center w-32 h-32 overflow-hidden rounded-full bg-white shadow-xl ring-4 ring-brand-100">
-                    <img src="{{ asset('images/logo.jpeg') }}" alt="PurrfectCat Groom" class="h-full w-full object-cover">
+                    <img src="{{ asset('images/purrfect-cat-groom.gif') }}" alt="PurrfectCat Groom" class="h-full w-full object-cover">
                 </div>
             </div>
 
@@ -535,7 +535,7 @@
                 {{-- Brand --}}
                 <div class="col-span-2 sm:col-span-1">
                     <div class="flex items-center gap-2 mb-3">
-                        <img src="{{ asset('images/logo.jpeg') }}" alt="PurrfectCat Groom" class="h-8 w-8 rounded-md object-cover">
+                        <img src="{{ asset('images/purrfect-cat-groom.gif') }}" alt="PurrfectCat Groom" class="h-8 w-8 rounded-md object-cover">
                         <span class="text-lg font-bold">PurrfectCat Groom</span>
                     </div>
                     <p class="text-sm text-gray-400 leading-relaxed">

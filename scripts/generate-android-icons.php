@@ -1,6 +1,6 @@
 <?php
 
-$source = __DIR__ . '/../resources/image/logo.jpeg';
+$source = __DIR__ . '/../public/images/purrfect-cat-groom.gif';
 $resDir = __DIR__ . '/../nativephp/android/app/src/main/res';
 
 $densities = [
@@ -11,7 +11,7 @@ $densities = [
     'xxxhdpi' => ['launcher' => 192, 'foreground' => 432],
 ];
 
-$src = imagecreatefromjpeg($source);
+$src = imagecreatefromgif($source);
 if (!$src) {
     fwrite(STDERR, "Failed to read $source\n");
     exit(1);

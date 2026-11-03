@@ -10,6 +10,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Native\Mobile\Runtime;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -41,6 +42,13 @@ class AppServiceProvider extends ServiceProvider
                 null,
                 'token',
             );
+        });
+
+        // NativePHP's persistent runtime reuses the booted app across requests, so a guard
+        // would keep the first request's user forever. Drop guards so each request re-resolves.
+        Runtime::onReset(function ($app) {
+            $app->forgetInstance('auth.driver');
+            $app['auth']->forgetGuards();
         });
 
         if (class_exists(\Native\Mobile\Events\PushNotification\TokenGenerated::class)) {

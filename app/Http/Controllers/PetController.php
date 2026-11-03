@@ -43,7 +43,20 @@ class PetController extends Controller
     public function destroy(Request $request, string $pet): RedirectResponse
     {
         $owned = $this->loadOwnedPet($request, $pet);
-        $this->client->deleteRecord('cg_pets', $owned->id, $request->user()->pocketbase_token);
+        $token = $request->user()->pocketbase_token;
+
+        // Bookings cascade-delete with their pet in PocketBase, so removing a cat with
+        // active bookings would silently wipe appointments the shop is expecting.
+        $active = $this->client->listRecords('cg_bookings', $token, [
+            'filter' => "pet='{$owned->id}' && (status='pending' || status='confirmed')",
+            'perPage' => 1,
+        ]);
+        if (! empty($active['items'])) {
+            return redirect()->route('dashboard', ['section' => 'pets'])
+                ->with('error', 'This cat has upcoming bookings. Cancel them before removing the cat.');
+        }
+
+        $this->client->deleteRecord('cg_pets', $owned->id, $token);
 
         return redirect()->route('dashboard')
             ->with('status', 'Pet removed successfully.');

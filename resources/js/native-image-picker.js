@@ -151,15 +151,6 @@ export function setupNativePicker(label) {
         return;
     }
 
-    if (isNativeAvailable()) {
-        // The NativePHP bridge re-encodes every form body as urlencoded but keeps the
-        // form's original Content-Type, so PHP drops multipart bodies entirely (every
-        // field arrives empty). The file travels via the hidden path input instead, and
-        // a named file input would be sent as the string "[object File]".
-        fileInput.removeAttribute('name');
-        if (fileInput.form) fileInput.form.enctype = 'application/x-www-form-urlencoded';
-    }
-
     label.addEventListener('click', (event) => {
         if (!isNativeAvailable()) {
             LOG('not on NativePHP — letting <input type="file"> handle the tap');
@@ -192,7 +183,19 @@ export function setupNativePicker(label) {
     }, true); // capture so we get the click before <input type="file">
 }
 
+// The NativePHP bridge re-encodes every form body as urlencoded but keeps the form's
+// original Content-Type, so PHP drops multipart bodies entirely (every field arrives
+// empty). Files travel via the picker's hidden path input instead, and a named file
+// input would be sent as the string "[object File]".
+function makeFormsBridgeSafe(root) {
+    root.querySelectorAll('form[enctype="multipart/form-data"]').forEach((form) => {
+        form.enctype = 'application/x-www-form-urlencoded';
+        form.querySelectorAll('input[type="file"]').forEach((input) => input.removeAttribute('name'));
+    });
+}
+
 export function setupAllNativePickers(root = document) {
+    if (isNativeAvailable()) makeFormsBridgeSafe(root);
     root.querySelectorAll('label[data-native-picker]').forEach(setupNativePicker);
 }
 

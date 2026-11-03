@@ -22,14 +22,16 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $backendUnavailableResponse = function (Request $request) {
+        $backendUnavailableResponse = function (Request $request, Throwable $e) {
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Unable to reach the booking service. Please check your connection and try again.',
                 ], 503);
             }
 
-            return response()->view('errors.backend-unavailable', [], 503);
+            return response()->view('errors.backend-unavailable', [
+                'reason' => config('app.debug') ? $e->getMessage() : null,
+            ], 503);
         };
 
         $exceptions->render(function (TokenMismatchException $e, Request $request) {
@@ -51,7 +53,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 'error' => $e->getMessage(),
             ]);
 
-            return $backendUnavailableResponse($request);
+            return $backendUnavailableResponse($request, $e);
         });
 
         $exceptions->render(function (PocketBaseException $e, Request $request) use ($backendUnavailableResponse) {
@@ -64,6 +66,6 @@ return Application::configure(basePath: dirname(__DIR__))
                 'error' => $e->getMessage(),
             ]);
 
-            return $backendUnavailableResponse($request);
+            return $backendUnavailableResponse($request, $e);
         });
     })->create();

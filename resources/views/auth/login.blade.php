@@ -5,7 +5,7 @@
         {{-- Brand --}}
         <div class="text-center">
             <div class="mx-auto flex h-20 w-20 items-center justify-center overflow-hidden rounded-3xl bg-white shadow-lg shadow-brand-500/20 ring-1 ring-brand-100">
-                <img src="{{ asset('images/logo.jpeg') }}" alt="PurrfectCat Groom" class="h-full w-full object-cover">
+                <img src="{{ asset('images/purrfect-cat-groom.gif') }}" alt="PurrfectCat Groom" class="h-full w-full object-cover">
             </div>
             <h1 class="mt-5 text-2xl font-extrabold tracking-tight text-gray-900">Welcome back</h1>
             <p class="mt-2 text-sm text-gray-500">Log in to manage your bookings & pets</p>
