@@ -151,6 +151,15 @@ export function setupNativePicker(label) {
         return;
     }
 
+    if (isNativeAvailable()) {
+        // The NativePHP bridge re-encodes every form body as urlencoded but keeps the
+        // form's original Content-Type, so PHP drops multipart bodies entirely (every
+        // field arrives empty). The file travels via the hidden path input instead, and
+        // a named file input would be sent as the string "[object File]".
+        fileInput.removeAttribute('name');
+        if (fileInput.form) fileInput.form.enctype = 'application/x-www-form-urlencoded';
+    }
+
     label.addEventListener('click', (event) => {
         if (!isNativeAvailable()) {
             LOG('not on NativePHP — letting <input type="file"> handle the tap');
