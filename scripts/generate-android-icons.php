@@ -1,6 +1,6 @@
 <?php
 
-$source = __DIR__ . '/../public/images/purrfect-cat-groom.gif';
+$source = __DIR__ . '/../public/images/fyp2logo.gif';
 $resDir = __DIR__ . '/../nativephp/android/app/src/main/res';
 
 $densities = [

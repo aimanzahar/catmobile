@@ -25,7 +25,7 @@
         <header class="safe-top sticky top-0 z-40 border-b border-black/5 bg-white/90 backdrop-blur-xl">
             <div class="flex items-center justify-between px-5 pb-3">
                 <a href="{{ $isAdmin ? route('admin.dashboard') : route('landing') }}" class="flex items-center gap-2 text-base font-extrabold text-brand-700">
-                    <img src="{{ asset('images/purrfect-cat-groom.gif') }}" alt="PurrfectCat Groom" class="h-7 w-7 rounded-md object-cover">
+                    <img src="{{ asset('images/fyp2logo.gif') }}" alt="PurrfectCat Groom" class="h-7 w-7 rounded-md object-cover">
                     <span>
                         PurrfectCat Groom
                         @if ($isAdmin)
