@@ -20,6 +20,13 @@
       0 => 'Native\\Mobile\\NativeServiceProvider',
     ),
   ),
+  'nativephp/mobile-camera' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Native\\Mobile\\Providers\\CameraServiceProvider',
+    ),
+  ),
   'nesbot/carbon' => 
   array (
     'providers' => 

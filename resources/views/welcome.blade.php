@@ -18,6 +18,7 @@
     @endif
 </head>
 <body class="bg-warm-50 text-gray-800 antialiased" x-data="{ mobileMenu: false }">
+    <div class="cat-bg" aria-hidden="true"></div>
 
     {{-- ========== FLOATING PAW DECORATIONS ========== --}}
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
@@ -114,9 +115,9 @@
     </nav>
 
     {{-- ========== HERO SECTION ========== --}}
-    <section class="relative min-h-screen flex items-center justify-center px-4 pt-20 pb-32 overflow-hidden">
+    <section class="relative min-h-screen flex items-center justify-center px-4 pt-[calc(max(1.75rem,env(safe-area-inset-top,1.75rem))+5rem)] pb-32 overflow-hidden">
         {{-- Background Gradient --}}
-        <div class="absolute inset-0 bg-gradient-to-br from-brand-50 via-warm-50 to-accent-400/10 z-0"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-brand-50/60 via-warm-50/40 to-accent-400/10 z-0"></div>
         <div class="absolute top-0 right-0 w-80 h-80 bg-brand-200/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 z-0"></div>
         <div class="absolute bottom-0 left-0 w-96 h-96 bg-accent-400/10 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3 z-0"></div>
 
@@ -246,7 +247,7 @@
     </section>
 
     {{-- ========== HOW IT WORKS ========== --}}
-    <section id="how-it-works" class="py-20 px-4 bg-white">
+    <section id="how-it-works" class="py-20 px-4 bg-white/60">
         <div class="max-w-4xl mx-auto">
             {{-- Section Header --}}
             <div class="text-center mb-14">
@@ -294,7 +295,7 @@
     </section>
 
     {{-- ========== FEATURES SECTION ========== --}}
-    <section id="features" class="py-20 px-4 bg-gradient-to-b from-warm-50 to-white">
+    <section id="features" class="py-20 px-4 bg-gradient-to-b from-warm-50/60 to-white/60">
         <div class="max-w-5xl mx-auto">
             {{-- Section Header --}}
             <div class="text-center mb-14">
@@ -334,7 +335,7 @@
     </section>
 
     {{-- ========== GALLERY SECTION ========== --}}
-    <section id="gallery" class="py-20 px-4 bg-white">
+    <section id="gallery" class="py-20 px-4 bg-white/60">
         <div class="max-w-5xl mx-auto">
             <div class="text-center mb-14">
                 <span class="inline-block px-4 py-1.5 bg-brand-100 text-brand-700 text-xs font-bold uppercase tracking-wider rounded-full">Gallery</span>
@@ -374,7 +375,7 @@
     </section>
 
     {{-- ========== TESTIMONIALS ========== --}}
-    <section class="py-20 px-4 bg-gradient-to-b from-warm-50 to-white">
+    <section class="py-20 px-4 bg-gradient-to-b from-warm-50/60 to-white/60">
         <div class="max-w-4xl mx-auto">
             <div class="text-center mb-14">
                 <span class="inline-block px-4 py-1.5 bg-brand-100 text-brand-700 text-xs font-bold uppercase tracking-wider rounded-full">Testimonials</span>
@@ -411,7 +412,7 @@
     </section>
 
     {{-- ========== FAQ SECTION ========== --}}
-    <section id="faq" class="py-20 px-4 bg-white">
+    <section id="faq" class="py-20 px-4 bg-white/60">
         <div class="max-w-2xl mx-auto">
             <div class="text-center mb-14">
                 <span class="inline-block px-4 py-1.5 bg-brand-100 text-brand-700 text-xs font-bold uppercase tracking-wider rounded-full">FAQ</span>
@@ -458,7 +459,7 @@
     </section>
 
     {{-- ========== CONTACT / ABOUT SECTION ========== --}}
-    <section id="contact" class="py-20 px-4 bg-gradient-to-b from-warm-50 to-brand-50">
+    <section id="contact" class="py-20 px-4 bg-gradient-to-b from-warm-50/60 to-brand-50/60">
         <div class="max-w-4xl mx-auto">
             <div class="text-center mb-14">
                 <span class="inline-block px-4 py-1.5 bg-brand-100 text-brand-700 text-xs font-bold uppercase tracking-wider rounded-full">Contact Us</span>

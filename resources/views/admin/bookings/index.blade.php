@@ -39,6 +39,9 @@
                                 <div class="flex items-center gap-2">
                                     <h2 class="text-sm font-bold text-gray-900 truncate">{{ $b->pet?->name ?? 'Pet' }}</h2>
                                     @include('admin.bookings._status_chip', ['status' => $b->status])
+                                    <span class="rounded-full px-2 py-0.5 text-[10px] font-bold {{ $b->payment_status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500' }}">
+                                        {{ ucfirst($b->payment_status) }}
+                                    </span>
                                 </div>
                                 <div class="mt-1 text-xs text-gray-600">
                                     {{ $b->userName ?? 'Customer' }}

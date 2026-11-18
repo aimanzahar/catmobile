@@ -60,4 +60,14 @@ class Booking
             created: $created,
         );
     }
+
+    /** e.g. "Danni · Full Grooming · 17 Nov 09:00" */
+    public function summary(): string
+    {
+        return implode(' · ', array_filter([
+            $this->pet?->name,
+            $this->service?->name,
+            trim(($this->timeSlot?->date?->format('j M') ?? '').' '.($this->timeSlot?->start_time ?? '')),
+        ]));
+    }
 }

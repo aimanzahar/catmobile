@@ -19,7 +19,7 @@ class DashboardController extends Controller
         $today = Carbon::today()->toDateString();
 
         $allResp = $this->client->listRecords('cg_bookings', $superToken, [
-            'sort' => '-id',
+            'sort' => '-created',
             'expand' => 'pet,service,time_slot,user',
             'perPage' => 200,
         ]);

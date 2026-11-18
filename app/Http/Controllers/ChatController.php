@@ -44,22 +44,15 @@ class ChatController extends Controller
 
         $resp = $this->client->listRecords('cg_messages', $superToken, [
             'filter' => "chat='{$chat->id}'",
-            'sort' => 'id',
+            'sort' => 'created',
             'perPage' => 200,
         ]);
 
         $messages = collect($resp['items'] ?? [])
-            ->map(fn (array $r) => Message::fromRecord($r))
-            ->map(fn (Message $m) => [
-                'id' => $m->id,
-                'sender_role' => $m->senderRole,
-                'body' => $m->body,
-                'created' => $m->created?->toIso8601String(),
-                'is_mine' => $m->senderRole === 'customer',
-            ])
+            ->map(fn (array $r) => Message::fromRecord($r)->toPayload())
             ->values();
 
-        $this->markRead->handle($chat->id, viewerRole: 'customer');
+        $this->markRead->handle($chat->id, viewerRole: 'customer', currentUnread: $chat->unreadForCustomer);
 
         return response()->json([
             'chat_id' => $chat->id,
@@ -74,7 +67,7 @@ class ChatController extends Controller
 
         $chat = $this->ensureChat->handle($user->id);
 
-        $send->handle(
+        $message = $send->handle(
             sender: $user,
             chatId: $chat->id,
             body: $body,
@@ -82,7 +75,7 @@ class ChatController extends Controller
         );
 
         if ($request->expectsJson() || $request->wantsJson()) {
-            return response()->json(['ok' => true]);
+            return response()->json(['ok' => true, 'message' => $message->toPayload()]);
         }
 
         return redirect()->route('chat.show');

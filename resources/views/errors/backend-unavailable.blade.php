@@ -11,6 +11,7 @@
     @endif
 </head>
 <body class="min-h-screen bg-warm-50 text-gray-800 antialiased">
+    <div class="cat-bg" aria-hidden="true"></div>
     <main class="flex min-h-screen min-h-[100dvh] items-center justify-center px-5 py-10">
         <section class="w-full max-w-sm rounded-2xl border border-black/5 bg-white p-6 text-center shadow-xl shadow-brand-500/10">
             <img src="{{ asset('images/fyp2logo.gif') }}" alt="PurrfectCat Groom" class="mx-auto h-16 w-16 rounded-2xl object-cover shadow-md">

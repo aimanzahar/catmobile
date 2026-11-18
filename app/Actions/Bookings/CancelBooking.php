@@ -2,6 +2,7 @@
 
 namespace App\Actions\Bookings;
 
+use App\Actions\Notifications\CreateNotification;
 use App\Models\Booking;
 use App\Models\User;
 use App\Services\PocketBase\Exceptions\PocketBaseNotFoundException;
@@ -12,7 +13,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CancelBooking
 {
-    public function __construct(private readonly PocketBaseClient $client) {}
+    public function __construct(
+        private readonly PocketBaseClient $client,
+        private readonly CreateNotification $createNotification,
+    ) {}
 
     public function handle(User $user, string $bookingId): Booking
     {
@@ -45,6 +49,16 @@ class CancelBooking
             'pet,service,time_slot,cg_taxi_requests_via_booking',
         );
 
-        return Booking::fromRecord($expanded);
+        $booking = Booking::fromRecord($expanded);
+
+        $this->createNotification->notifyAdmins(
+            type: 'booking_cancelled',
+            title: 'Booking cancelled by '.$user->name,
+            body: $booking->summary(),
+            link: '/admin/bookings/'.$booking->id,
+            relatedId: $booking->id,
+        );
+
+        return $booking;
     }
 }

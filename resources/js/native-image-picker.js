@@ -53,16 +53,18 @@ function takePendingResolver(id) {
     return null;
 }
 
-function localFilePreviewUrl(file) {
-    const path = file?.previewDataUrl || file?.dataUrl || file?.previewUri || file?.uri || file?.contentUri || file?.path;
-    const normalizedPath = String(path || '').replace(/\\/g, '/');
-    if (!normalizedPath) return '';
-
-    if (/^[a-z][a-z0-9+.-]*:/i.test(normalizedPath) && !/^[a-z]:\//i.test(normalizedPath)) {
-        return normalizedPath;
+// file:// URLs are blocked inside the http://127.0.0.1 page, and the bridge can't
+// return binary bodies, so the app hands back the picked image as a data URL.
+async function previewDataUrl(path) {
+    try {
+        const res = await fetch('/_native/local-file?path=' + encodeURIComponent(path), {
+            headers: { Accept: 'application/json' },
+        });
+        return res.ok ? (await res.json()).data_url || '' : '';
+    } catch (error) {
+        ERR('preview failed:', error);
+        return '';
     }
-
-    return encodeURI(`file://${normalizedPath.startsWith('/') ? '' : '/'}${normalizedPath}`);
 }
 
 function installMediaSelectedListener() {
@@ -162,7 +164,7 @@ export function setupNativePicker(label) {
         event.stopPropagation();
         LOG('intercepted click — opening native gallery');
 
-        pickImageNative().then((file) => {
+        pickImageNative().then(async (file) => {
             LOG('picked file:', file);
 
             if (pathInput) {
@@ -173,7 +175,7 @@ export function setupNativePicker(label) {
             }
 
             label.dispatchEvent(new CustomEvent('native-picker-selected', {
-                detail: { path: file.path, previewUrl: localFilePreviewUrl(file), mimeType: file.mimeType },
+                detail: { path: file.path, previewUrl: await previewDataUrl(file.path), mimeType: file.mimeType },
                 bubbles: true,
             }));
         }).catch((err) => {

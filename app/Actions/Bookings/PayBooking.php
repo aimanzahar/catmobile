@@ -2,6 +2,7 @@
 
 namespace App\Actions\Bookings;
 
+use App\Actions\Notifications\CreateNotification;
 use App\Models\Booking;
 use App\Models\User;
 use App\Services\PocketBase\Exceptions\PocketBaseNotFoundException;
@@ -12,7 +13,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class PayBooking
 {
-    public function __construct(private readonly PocketBaseClient $client) {}
+    public function __construct(
+        private readonly PocketBaseClient $client,
+        private readonly CreateNotification $createNotification,
+    ) {}
 
     public function handle(User $user, string $bookingId, string $channelCode): Booking
     {
@@ -39,8 +43,8 @@ class PayBooking
         $paymentNote = "[Paid via {$channelLabel}]";
         $notes = $existingNotes === '' ? $paymentNote : $existingNotes."\n".$paymentNote;
 
+        // Status stays 'pending': the shop confirms it from the admin side.
         $updated = $this->client->updateRecord('cg_bookings', $bookingId, [
-            'status' => 'confirmed',
             'payment_method' => 'online',
             'payment_status' => 'paid',
             'notes' => $notes,
@@ -53,7 +57,17 @@ class PayBooking
             'pet,service,time_slot,cg_taxi_requests_via_booking',
         );
 
-        return Booking::fromRecord($expanded);
+        $booking = Booking::fromRecord($expanded);
+
+        $this->createNotification->notifyAdmins(
+            type: 'booking_new',
+            title: 'New booking from '.$user->name,
+            body: $booking->summary().' (paid, waiting for your confirmation)',
+            link: '/admin/bookings/'.$booking->id,
+            relatedId: $booking->id,
+        );
+
+        return $booking;
     }
 
     private function resolveChannelLabel(string $code): string

@@ -1,6 +1,5 @@
 {{-- Shared chat thread partial. Expects: $pollUrl, $postUrl, $isAdmin, $partnerName, $backUrl --}}
 <div x-data="chatThread({ pollUrl: @js($pollUrl), postUrl: @js($postUrl), isAdmin: {{ $isAdmin ? 'true' : 'false' }} })"
-     x-init="init()"
      class="chat-screen">
 
     <header class="chat-screen-header">
@@ -23,6 +22,8 @@
     </header>
 
     <div id="chat-message-list" class="chat-screen-list">
+        {{-- Pushes a short thread down against the composer; collapses once it scrolls. --}}
+        <div class="mt-auto" aria-hidden="true"></div>
         <template x-if="messages.length === 0">
             <p class="chat-empty-state">
                 @if($isAdmin)
@@ -36,9 +37,12 @@
         <template x-for="(msg, idx) in messages" :key="msg.id">
             <div class="contents">
                 <div x-show="shouldShowDayDivider(idx)" class="chat-day-divider" x-text="dayLabel(msg.created)"></div>
-                <div :class="msg.is_mine
-                        ? 'chat-bubble chat-bubble-mine ' + (isSameSenderAsPrev(idx) ? '' : 'chat-bubble-mine--head')
-                        : 'chat-bubble chat-bubble-theirs ' + (isSameSenderAsPrev(idx) ? '' : 'chat-bubble-theirs--head')"
+                <div :class="[
+                        msg.is_mine
+                            ? 'chat-bubble chat-bubble-mine ' + (isSameSenderAsPrev(idx) ? '' : 'chat-bubble-mine--head')
+                            : 'chat-bubble chat-bubble-theirs ' + (isSameSenderAsPrev(idx) ? '' : 'chat-bubble-theirs--head'),
+                        msg.pending ? 'opacity-70' : '',
+                     ]"
                      :style="isSameSenderAsPrev(idx) ? 'margin-top: 2px' : 'margin-top: 6px'">
                     <span class="whitespace-pre-wrap" x-text="msg.body"></span>
                     <span x-show="shouldShowTime(idx)" class="chat-bubble-time" x-text="formatTime(msg.created)"></span>
@@ -55,7 +59,7 @@
                   @keydown.enter.prevent="send()"
                   @input="autoresize($event.target)"></textarea>
         <button type="submit"
-                :disabled="sending || body.trim() === ''"
+                :disabled="body.trim() === ''"
                 class="chat-screen-composer-send"
                 aria-label="Send">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">

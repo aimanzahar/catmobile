@@ -2,30 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class NativeFileController extends Controller
 {
     /**
-     * Serve a file from the NativePHP app's cache directory (e.g. an image
-     * just picked from the gallery) so the WebView can preview it.
+     * Preview of an image just picked from the gallery, as a base64 data URL.
      *
-     * The path is verified to live under the configured tempdir to avoid
-     * exposing arbitrary files on the device.
+     * Raw bytes can't be returned: the NativePHP bridge passes every response
+     * body to Java as a UTF-8 string, and binary data aborts the app (JNI
+     * NewStringUTF). The path must live in one of the allowed app dirs.
      */
-    public function show(Request $request): BinaryFileResponse
+    public function show(Request $request): JsonResponse
     {
-        $path = (string) $request->query('path', '');
-        Log::info('[NativeFileController] preview request', ['path' => $path]);
+        $real = self::resolveSafePath((string) $request->query('path', ''));
+        $mime = @mime_content_type($real) ?: 'application/octet-stream';
 
-        $real = $this->resolveSafePath($path);
-
-        return response()->file($real, [
-            'Cache-Control' => 'no-store',
-        ]);
+        return response()->json([
+            'data_url' => 'data:'.$mime.';base64,'.base64_encode((string) file_get_contents($real)),
+        ], 200, ['Cache-Control' => 'no-store']);
     }
 
     public static function resolveSafePath(string $path): string
@@ -48,8 +46,18 @@ class NativeFileController extends Controller
         }
 
         $tempReal = realpath($tempDir);
-        if ($tempReal === false || ! str_starts_with($real, $tempReal . DIRECTORY_SEPARATOR)) {
-            Log::warning('[NativeFileController] path outside tempdir', [
+        if ($tempReal === false) {
+            throw new NotFoundHttpException();
+        }
+
+        // The camera plugin saves picks/captures under the app's noBackupFilesDir,
+        // a sibling of the cache dir (tempdir) inside the private app data dir.
+        $noBackup = dirname($tempReal).DIRECTORY_SEPARATOR.'no_backup'.DIRECTORY_SEPARATOR;
+        $allowedRoots = [$tempReal.DIRECTORY_SEPARATOR, $noBackup.'Gallery'.DIRECTORY_SEPARATOR, $noBackup.'Camera'.DIRECTORY_SEPARATOR];
+
+        $allowed = array_filter($allowedRoots, fn (string $root) => str_starts_with($real, $root));
+        if ($allowed === []) {
+            Log::warning('[NativeFileController] path outside allowed dirs', [
                 'path' => $real,
                 'tempdir' => $tempReal,
             ]);

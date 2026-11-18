@@ -55,6 +55,17 @@ class SendMessage
 
         $this->client->updateRecord('cg_chats', $chatId, $update, $superToken);
 
+        // One admin ping per unread burst, not one per message.
+        if ($senderRole === 'customer' && (int) ($chat['unread_for_admin'] ?? 0) === 0) {
+            $this->createNotification->notifyAdmins(
+                type: 'chat_message',
+                title: 'New message from '.$sender->name,
+                body: $preview,
+                link: '/admin/chats/'.$chatId,
+                relatedId: $chatId,
+            );
+        }
+
         if ($senderRole === 'admin') {
             $customerId = (string) ($chat['user'] ?? '');
             if ($customerId !== '') {

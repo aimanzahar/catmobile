@@ -25,7 +25,7 @@ class BookingController extends Controller
         $allowedStatuses = ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'];
 
         $params = [
-            'sort' => '-id',
+            'sort' => '-created',
             'expand' => 'pet,service,time_slot,user',
             'perPage' => 200,
         ];

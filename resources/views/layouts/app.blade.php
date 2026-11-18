@@ -14,7 +14,10 @@
     @endif
 </head>
 <body class="min-h-screen min-h-[100dvh] bg-warm-50 text-gray-800 antialiased">
-    <div class="min-h-screen min-h-[100dvh] bg-[radial-gradient(circle_at_top_right,_rgba(251,113,133,0.08),_transparent_40%),linear-gradient(180deg,_rgba(255,248,240,1)_0%,_rgba(255,251,245,1)_100%)]">
+    @unless (request()->routeIs('chat.show', 'admin.chats.*'))
+        <div class="cat-bg" aria-hidden="true"></div>
+    @endunless
+    <div class="min-h-screen min-h-[100dvh]">
 
         @php
             $authedUser = auth()->user();
@@ -42,7 +45,6 @@
                 @auth
                     <a href="{{ route('notifications.index') }}"
                        x-data="notificationBell()"
-                       x-init="init()"
                        class="relative flex h-9 w-9 items-center justify-center rounded-full bg-white text-gray-500 hover:text-brand-600">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-5 w-5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />

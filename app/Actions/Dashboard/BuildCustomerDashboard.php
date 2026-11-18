@@ -70,7 +70,7 @@ class BuildCustomerDashboard
             $superToken = $this->client->superuserToken();
             $resp = $this->client->listRecords('cg_notifications', $superToken, [
                 'filter' => "user='{$user->id}' && read_at=''",
-                'sort' => '-id',
+                'sort' => '-created',
                 'perPage' => 3,
             ]);
 

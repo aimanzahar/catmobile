@@ -8,22 +8,22 @@
         </div>
 
         <section class="grid grid-cols-2 gap-3">
-            <div class="rounded-2xl bg-white border border-amber-100 p-4">
+            <a href="{{ route('admin.bookings.index', ['status' => 'pending']) }}" class="rounded-2xl bg-white border border-amber-100 p-4">
                 <div class="text-xs font-semibold text-amber-600">Pending</div>
                 <div class="mt-1 text-2xl font-extrabold text-amber-700">{{ $counts['pending'] }}</div>
-            </div>
-            <div class="rounded-2xl bg-white border border-blue-100 p-4">
+            </a>
+            <a href="{{ route('admin.bookings.index', ['status' => 'confirmed']) }}" class="rounded-2xl bg-white border border-blue-100 p-4">
                 <div class="text-xs font-semibold text-blue-600">Confirmed</div>
                 <div class="mt-1 text-2xl font-extrabold text-blue-700">{{ $counts['confirmed'] }}</div>
-            </div>
-            <div class="rounded-2xl bg-white border border-purple-100 p-4">
+            </a>
+            <a href="{{ route('admin.bookings.index', ['status' => 'in_progress']) }}" class="rounded-2xl bg-white border border-purple-100 p-4">
                 <div class="text-xs font-semibold text-purple-600">In progress</div>
                 <div class="mt-1 text-2xl font-extrabold text-purple-700">{{ $counts['in_progress'] }}</div>
-            </div>
-            <div class="rounded-2xl bg-white border border-green-100 p-4">
+            </a>
+            <a href="{{ route('admin.bookings.index', ['status' => 'completed']) }}" class="rounded-2xl bg-white border border-green-100 p-4">
                 <div class="text-xs font-semibold text-green-600">Completed</div>
                 <div class="mt-1 text-2xl font-extrabold text-green-700">{{ $counts['completed'] }}</div>
-            </div>
+            </a>
         </section>
 
         <section class="rounded-2xl bg-white p-4 border border-gray-100">

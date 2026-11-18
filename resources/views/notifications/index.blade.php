@@ -27,6 +27,7 @@
                 @foreach ($notifications as $n)
                     @php
                         $iconBg = match ($n->type) {
+                            'booking_new' => 'bg-amber-100 text-amber-600',
                             'booking_confirmed' => 'bg-blue-100 text-blue-600',
                             'booking_in_progress' => 'bg-purple-100 text-purple-600',
                             'booking_completed' => 'bg-green-100 text-green-600',
@@ -35,6 +36,7 @@
                             default => 'bg-gray-100 text-gray-600',
                         };
                         $icon = match ($n->type) {
+                            'booking_new' => '📅',
                             'booking_completed' => '🎉',
                             'booking_in_progress' => '✂️',
                             'chat_message' => '💬',

@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Booking confirmed', 'activeSection' => $activeSection])
+@extends('layouts.app', ['title' => 'Booking received', 'activeSection' => $activeSection])
 
 @section('content')
     <div class="space-y-5 pb-10">
@@ -8,8 +8,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                 </svg>
             </div>
-            <h1 class="mt-3 text-xl font-extrabold">Booking confirmed!</h1>
-            <p class="mt-1 text-sm opacity-90">We can't wait to pamper your cat 🐱</p>
+            <h1 class="mt-3 text-xl font-extrabold">Booking received!</h1>
+            <p class="mt-1 text-sm opacity-90">Payment done. The shop will confirm your booking shortly — you'll get a notification 🐱</p>
             <div class="mt-3 inline-block rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider">
                 Order BK-{{ str_pad(substr($booking->id, -6), 6, '0', STR_PAD_LEFT) }}
             </div>

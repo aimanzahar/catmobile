@@ -54,4 +54,28 @@ class CreateNotification
 
         return $notification;
     }
+
+    /**
+     * In-app notification for every admin. Never throws: a failed notification
+     * must not break the booking or chat action that triggered it.
+     */
+    public function notifyAdmins(string $type, string $title, ?string $body = null, ?string $link = null, ?string $relatedId = null): void
+    {
+        try {
+            $admins = $this->client->listRecords('cg_users', $this->client->superuserToken(), [
+                'filter' => "role='admin'",
+                'perPage' => 50,
+            ]);
+
+            foreach ($admins['items'] ?? [] as $admin) {
+                $this->handle((string) $admin['id'], $type, $title, $body, $link, $relatedId, sendPush: false);
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Failed to notify admins', [
+                'type' => $type,
+                'related' => $relatedId,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
 }

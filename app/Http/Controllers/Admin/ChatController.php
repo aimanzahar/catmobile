@@ -66,19 +66,12 @@ class ChatController extends Controller
 
         $resp = $this->client->listRecords('cg_messages', $superToken, [
             'filter' => "chat='{$chat}'",
-            'sort' => 'id',
+            'sort' => 'created',
             'perPage' => 200,
         ]);
 
         $messages = collect($resp['items'] ?? [])
-            ->map(fn (array $r) => Message::fromRecord($r))
-            ->map(fn (Message $m) => [
-                'id' => $m->id,
-                'sender_role' => $m->senderRole,
-                'body' => $m->body,
-                'created' => $m->created?->toIso8601String(),
-                'is_mine' => $m->senderRole === 'admin',
-            ])
+            ->map(fn (array $r) => Message::fromRecord($r)->toPayload())
             ->values();
 
         $this->markRead->handle($chat, viewerRole: 'admin');
@@ -94,7 +87,7 @@ class ChatController extends Controller
         $user = $request->user();
         $body = (string) $request->validated('body');
 
-        $send->handle(
+        $message = $send->handle(
             sender: $user,
             chatId: $chat,
             body: $body,
@@ -102,7 +95,7 @@ class ChatController extends Controller
         );
 
         if ($request->expectsJson() || $request->wantsJson()) {
-            return response()->json(['ok' => true]);
+            return response()->json(['ok' => true, 'message' => $message->toPayload()]);
         }
 
         return redirect()->route('admin.chats.show', $chat);

@@ -83,6 +83,7 @@ class PocketBaseSetup extends Command
 
     private function upsertCollection(array $definition): void
     {
+        $definition['fields'] = [...($definition['fields'] ?? []), ...$this->timestamps()];
         $name = $definition['name'];
         $existing = $this->request('get', "/api/collections/{$name}");
 
@@ -110,37 +111,65 @@ class PocketBaseSetup extends Command
 
     private function ensureMissingFields(string $collection, array $currentFields, array $desiredFields): void
     {
-        $currentByName = [];
-        foreach ($currentFields as $field) {
+        $desiredByName = [];
+        foreach ($desiredFields as $field) {
             if (isset($field['name'])) {
-                $currentByName[$field['name']] = $field;
+                $desiredByName[$field['name']] = $field;
             }
         }
 
-        $missing = [];
-        foreach ($desiredFields as $field) {
-            if (! isset($field['name'])) {
+        $currentNames = [];
+        $changes = [];
+
+        // New select options are merged into the live field object so it keeps
+        // its id; replacing it would make PocketBase drop and re-add the column.
+        foreach ($currentFields as $i => $field) {
+            $name = $field['name'] ?? null;
+            $currentNames[] = $name;
+            $desired = $desiredByName[$name] ?? null;
+
+            if (($field['type'] ?? null) !== 'select' || ($desired['type'] ?? null) !== 'select') {
                 continue;
             }
-            if (! isset($currentByName[$field['name']])) {
-                $missing[] = $field;
+
+            $newValues = array_values(array_diff($desired['values'] ?? [], $field['values'] ?? []));
+            if ($newValues !== []) {
+                $currentFields[$i]['values'] = array_merge($field['values'] ?? [], $newValues);
+                $changes[] = "{$name} options +".implode(', +', $newValues);
             }
         }
 
-        if ($missing === []) {
+        $missing = array_values(array_filter(
+            $desiredFields,
+            fn (array $f) => isset($f['name']) && ! in_array($f['name'], $currentNames, true),
+        ));
+        foreach ($missing as $field) {
+            $changes[] = $field['name'];
+        }
+
+        if ($changes === []) {
             $this->line("• Collection {$collection} fields up to date");
 
             return;
         }
 
-        $merged = array_merge($currentFields, $missing);
-        $res = $this->request('patch', "/api/collections/{$collection}", ['fields' => $merged]);
+        $res = $this->request('patch', "/api/collections/{$collection}", ['fields' => array_merge($currentFields, $missing)]);
         if ($res->successful()) {
-            $names = implode(', ', array_map(fn ($f) => $f['name'], $missing));
-            $this->info("✓ Added fields to {$collection}: {$names}");
+            $this->info("✓ Updated fields on {$collection}: ".implode(', ', $changes));
         } else {
             $this->error("✗ Failed to patch {$collection}: ".$res->body());
         }
+    }
+
+    /**
+     * PocketBase 0.23+ no longer adds created/updated to collections created via the API.
+     */
+    private function timestamps(): array
+    {
+        return [
+            ['name' => 'created', 'type' => 'autodate', 'onCreate' => true, 'onUpdate' => false],
+            ['name' => 'updated', 'type' => 'autodate', 'onCreate' => true, 'onUpdate' => true],
+        ];
     }
 
     private function ensureRules(string $collection, array $current, array $desired): void
@@ -531,7 +560,7 @@ class PocketBaseSetup extends Command
             'deleteRule' => 'user = @request.auth.id',
             'fields' => [
                 ['name' => 'user', 'type' => 'relation', 'required' => true, 'collectionId' => $this->collectionId('cg_users'), 'cascadeDelete' => true, 'maxSelect' => 1],
-                ['name' => 'type', 'type' => 'select', 'maxSelect' => 1, 'values' => ['booking_confirmed', 'booking_in_progress', 'booking_completed', 'booking_cancelled', 'chat_message']],
+                ['name' => 'type', 'type' => 'select', 'maxSelect' => 1, 'values' => ['booking_new', 'booking_confirmed', 'booking_in_progress', 'booking_completed', 'booking_cancelled', 'chat_message']],
                 ['name' => 'title', 'type' => 'text', 'required' => true, 'max' => 255],
                 ['name' => 'body', 'type' => 'text', 'max' => 1000],
                 ['name' => 'link', 'type' => 'text', 'max' => 500],

@@ -3,6 +3,14 @@
 @section('content')
     <div x-data="{ tab: '{{ $activeSection }}', editingPet: null, showAddPet: false }" class="space-y-5">
 
+        @if ($errors->any())
+            <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                @foreach ($errors->all() as $error)
+                    <p>{{ $error }}</p>
+                @endforeach
+            </div>
+        @endif
+
         {{-- ── Greeting header ── --}}
         <div class="flex items-center gap-3.5">
             @if ($user->avatarUrl())

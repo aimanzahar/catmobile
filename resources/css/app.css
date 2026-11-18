@@ -279,7 +279,7 @@ html {
 /* ── Chat screen — fixed viewport, sits between header and tab bar ── */
 .chat-screen {
     position: fixed;
-    top: calc(max(1.75rem, env(safe-area-inset-top, 1.75rem)) + 2.75rem);
+    top: calc(max(1.75rem, env(safe-area-inset-top, 1.75rem)) + 3rem + 1px);
     left: 0;
     right: 0;
     bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
@@ -462,4 +462,25 @@ html {
 /* When a chat page is active, drop the main padding (chat is fixed-positioned) */
 main:has(.chat-screen) {
     padding: 0 !important;
+}
+
+/* NativePHP toggles body.keyboard-visible from the real keyboard insets. While it's
+   open the tab bar would ride up above the keyboard and squeeze the page, so hide
+   it and let the chat thread use the full height. */
+body.keyboard-visible .bottom-tab-bar {
+    display: none;
+}
+
+body.keyboard-visible .chat-screen {
+    bottom: 0;
+}
+
+/* Cat illustration behind every page except chat. Opacity is the tuning knob. */
+.cat-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: url('/images/cat-background.png') center top / 100% auto repeat-y;
+    opacity: 0.3;
 }

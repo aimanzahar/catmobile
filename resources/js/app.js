@@ -36,9 +36,11 @@ Alpine.data('notificationBell', () => ({
 
 Alpine.data('chatThread', ({ pollUrl, postUrl, isAdmin = false }) => ({
     messages: [],
+    pending: [], // sent locally, not yet confirmed by the server
     body: '',
-    sending: false,
     timer: null,
+    seq: 0,
+    outbox: Promise.resolve(),
     pollUrl,
     postUrl,
     isAdmin,
@@ -48,13 +50,30 @@ Alpine.data('chatThread', ({ pollUrl, postUrl, isAdmin = false }) => ({
         this.timer = setInterval(() => {
             if (document.visibilityState === 'visible') this.refresh();
         }, 4000);
+        // Keyboard opening shrinks the WebView; keep the newest message in view.
+        this.onResize = () => this.scrollToBottom();
+        window.addEventListener('resize', this.onResize);
     },
 
     destroy() {
-        if (this.timer) clearInterval(this.timer);
+        clearInterval(this.timer);
+        window.removeEventListener('resize', this.onResize);
+    },
+
+    withMine(m) {
+        return { ...m, is_mine: m.sender_role === (this.isAdmin ? 'admin' : 'customer') };
+    },
+
+    setMessages(list) {
+        const lastId = this.messages[this.messages.length - 1]?.id;
+        this.messages = list;
+        if (list[list.length - 1]?.id !== lastId) {
+            this.$nextTick(() => this.scrollToBottom());
+        }
     },
 
     async refresh() {
+        const seq = ++this.seq;
         try {
             const res = await fetch(this.pollUrl, {
                 headers: { 'Accept': 'application/json' },
@@ -62,31 +81,37 @@ Alpine.data('chatThread', ({ pollUrl, postUrl, isAdmin = false }) => ({
             });
             if (!res.ok) return;
             const data = await res.json();
-            const previousLen = this.messages.length;
-            this.messages = (data.messages || []).map(m => ({
-                ...m,
-                is_mine: this.isAdmin ? m.sender_role === 'admin' : m.sender_role === 'customer',
-            }));
-            if (this.messages.length !== previousLen) {
-                this.$nextTick(() => this.scrollToBottom());
-            }
+            // A newer poll or a confirmed send has happened since; this response is stale.
+            if (seq !== this.seq) return;
+            this.setMessages([...(data.messages || []).map(m => this.withMine(m)), ...this.pending]);
         } catch (e) {
             // silent
         }
     },
 
-    async send() {
+    send() {
         const body = this.body.trim();
-        if (body === '' || this.sending) return;
+        if (body === '') return;
 
-        this.sending = true;
-        const previous = this.body;
+        const local = this.withMine({
+            id: 'tmp-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+            sender_role: this.isAdmin ? 'admin' : 'customer',
+            body,
+            created: new Date().toISOString(),
+            pending: true,
+        });
+        this.pending.push(local);
+        this.setMessages([...this.messages, local]);
+
         this.body = '';
-
-        // reset textarea height
         const ta = this.$el.querySelector('textarea');
         if (ta) ta.style.height = '';
 
+        // Serialised so messages reach the server in the order they were typed.
+        this.outbox = this.outbox.then(() => this.post(local));
+    },
+
+    async post(local) {
         try {
             const res = await fetch(this.postUrl, {
                 method: 'POST',
@@ -96,17 +121,23 @@ Alpine.data('chatThread', ({ pollUrl, postUrl, isAdmin = false }) => ({
                     'X-CSRF-TOKEN': csrfToken(),
                 },
                 credentials: 'same-origin',
-                body: JSON.stringify({ body }),
+                body: JSON.stringify({ body: local.body }),
             });
-            if (res.ok) {
-                await this.refresh();
-            } else {
-                this.body = previous;
+            if (!res.ok) throw new Error('send failed: ' + res.status);
+            const data = await res.json();
+
+            this.seq++; // discard polls that started before this message existed
+            this.pending = this.pending.filter(p => p.id !== local.id);
+            const list = this.messages.filter(m => m.id !== local.id);
+            if (data.message && !list.some(m => m.id === data.message.id)) {
+                const at = list.findIndex(m => m.pending);
+                list.splice(at === -1 ? list.length : at, 0, this.withMine(data.message));
             }
+            this.setMessages(list);
         } catch (e) {
-            this.body = previous;
-        } finally {
-            this.sending = false;
+            this.pending = this.pending.filter(p => p.id !== local.id);
+            this.setMessages(this.messages.filter(m => m.id !== local.id));
+            if (this.body.trim() === '') this.body = local.body;
         }
     },
 

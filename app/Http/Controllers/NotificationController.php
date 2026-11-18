@@ -23,7 +23,7 @@ class NotificationController extends Controller
 
         $resp = $this->client->listRecords('cg_notifications', $superToken, [
             'filter' => "user='{$user->id}'",
-            'sort' => '-id',
+            'sort' => '-created',
             'perPage' => 100,
         ]);
 

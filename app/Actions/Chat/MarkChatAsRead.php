@@ -8,29 +8,18 @@ class MarkChatAsRead
 {
     public function __construct(private readonly PocketBaseClient $client) {}
 
-    public function handle(string $chatId, string $viewerRole): void
+    /**
+     * Runs on every chat poll, so skip the remote write when the caller
+     * already knows there is nothing unread.
+     */
+    public function handle(string $chatId, string $viewerRole, ?int $currentUnread = null): void
     {
-        if (! in_array($viewerRole, ['customer', 'admin'], true)) {
+        if (! in_array($viewerRole, ['customer', 'admin'], true) || $currentUnread === 0) {
             return;
         }
 
-        $superToken = $this->client->superuserToken();
-
         $this->client->updateRecord('cg_chats', $chatId, [
             $viewerRole === 'customer' ? 'unread_for_customer' : 'unread_for_admin' => 0,
-        ], $superToken);
-
-        $unreadField = $viewerRole === 'customer' ? 'read_by_customer' : 'read_by_admin';
-
-        $unread = $this->client->listRecords('cg_messages', $superToken, [
-            'filter' => "chat='{$chatId}' && {$unreadField}=false",
-            'perPage' => 200,
-        ]);
-
-        foreach ($unread['items'] ?? [] as $row) {
-            $this->client->updateRecord('cg_messages', (string) $row['id'], [
-                $unreadField => true,
-            ], $superToken);
-        }
+        ], $this->client->superuserToken());
     }
 }

@@ -32,4 +32,15 @@ class Message
                 : null,
         );
     }
+
+    /** JSON shape consumed by the chatThread Alpine component. */
+    public function toPayload(): array
+    {
+        return [
+            'id' => $this->id,
+            'sender_role' => $this->senderRole,
+            'body' => $this->body,
+            'created' => $this->created?->toIso8601String(),
+        ];
+    }
 }
